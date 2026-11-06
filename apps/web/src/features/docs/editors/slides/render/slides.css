@@ -1,0 +1,153 @@
+/*
+ * 幻灯片页面内容的排版（编辑画布、缩略图、放映、打印共用；打印时以字符串注入 iframe）。
+ * 页面里的颜色、字号都来自幻灯片数据，这里只定结构。
+ */
+.sl-page {
+  position: relative;
+  overflow: hidden;
+  transform-origin: 0 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.sl-el {
+  box-sizing: border-box;
+}
+.sl-text {
+  box-sizing: border-box;
+  overflow: visible;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+}
+.sl-text-body,
+.sl-text .ProseMirror {
+  outline: none;
+  min-width: 0;
+  white-space: pre-wrap;
+}
+.sl-text p {
+  margin: 0;
+}
+.sl-text ul,
+.sl-text ol {
+  margin: 0;
+  padding-left: 1.3em;
+}
+.sl-text ul {
+  list-style: disc;
+}
+.sl-text ul ul {
+  list-style: circle;
+}
+.sl-text ul ul ul {
+  list-style: square;
+}
+.sl-text ol {
+  list-style: decimal;
+}
+.sl-text li + li {
+  margin-top: 0.2em;
+}
+.sl-text li > ul,
+.sl-text li > ol {
+  margin-top: 0.2em;
+}
+.sl-text code {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0 0.2em;
+  border-radius: 0.2em;
+  background: color-mix(in oklab, currentColor 10%, transparent);
+}
+.sl-text a {
+  color: inherit;
+  text-decoration: underline;
+}
+.sl-prompt {
+  opacity: 0.45;
+  font-weight: inherit;
+}
+.sl-table {
+  width: 100%;
+  height: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  line-height: 1.3;
+}
+.sl-table td {
+  box-sizing: border-box;
+}
+
+/* 协作者在文本框里的光标（与富文本同一套外观，标签大小按画布缩放反向补偿） */
+.sl-caret {
+  position: relative;
+  margin-right: -1px;
+  margin-left: -1px;
+  border-right: 1px solid var(--peer-color);
+  border-left: 1px solid var(--peer-color);
+  word-break: normal;
+  pointer-events: none;
+}
+.sl-caret__label {
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  padding: 1px 6px;
+  border-radius: 4px 4px 4px 0;
+  background-color: var(--peer-color);
+  color: var(--accent-fg, #fff);
+  font-family: var(--font-sans, sans-serif);
+  font-size: calc(11px * var(--sl-inv, 1));
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1.45;
+  white-space: nowrap;
+  user-select: none;
+}
+.sl-caret--agent .sl-caret__label {
+  background-image: var(--agent-gradient);
+}
+.sl-peer-selection {
+  background-color: color-mix(in oklab, var(--peer-color) 22%, transparent);
+}
+.sl-text .ProseMirror-selectednode {
+  outline: none;
+}
+.sl-text .ProseMirror ::selection {
+  background: color-mix(in oklab, var(--accent, #5b5bd6) 30%, transparent);
+}
+
+/* 画布里的编辑器：文本框编辑器撑满文字区，表格单元格的输入框继承单元格字体 */
+.sl-editor-wrap {
+  min-width: 0;
+}
+.sl-editor-wrap .ProseMirror {
+  cursor: inherit;
+}
+.sl-editor-wrap[data-editing] .ProseMirror {
+  cursor: text;
+}
+.sl-cell-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 1.3em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  field-sizing: content;
+}
+
+@media print {
+  .sl-print-page {
+    break-after: page;
+  }
+}

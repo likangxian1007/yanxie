@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <script>
+      // 首帧前定主题，避免闪烁：localStorage 优先，否则跟随系统
+      (function () {
+        var t;
+        try {
+          t = localStorage.getItem('theme');
+        } catch (e) {}
+        if (t !== 'light' && t !== 'dark') {
+          t =
+            window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light'
+              : 'dark';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+        document
+          .querySelector('meta[name="theme-color"]')
+          .setAttribute('content', t === 'light' ? '#ffffff' : '#0a0a0a');
+      })();
+    </script>
+    <title>研协 · 把整个课题组和 AI 放进同一张桌子</title>
+    <meta
+      name="description"
+      content="研协是面向科研团队的多人协同 AI Agent 平台：协调者拆解课题、线程并行推进、文档实时协同、审阅 LGTM、组会汇报一键起草，部署在你们自己的服务器上。"
+    />
+    <link rel="canonical" href="https://co.thinkloft.io/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://co.thinkloft.io/" />
+    <meta property="og:title" content="研协 · 把整个课题组和 AI 放进同一张桌子" />
+    <meta
+      property="og:description"
+      content="研协是面向科研团队的多人协同 AI Agent 平台：协调者拆解课题、线程并行推进、文档实时协同、审阅 LGTM、组会汇报一键起草，部署在你们自己的服务器上。"
+    />
+    <meta property="og:site_name" content="研协" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:image" content="https://co.thinkloft.io/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="研协：把整个课题组，和 AI 放进同一张桌子" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="研协 · 把整个课题组和 AI 放进同一张桌子" />
+    <meta name="twitter:image" content="https://co.thinkloft.io/og.png" />
+    <script>
+      // 首帧前定语言（规则同 src/i18n.tsx 的 detectLang）：?lang= 优先，其次 localStorage 'srh-lang'，默认中文
+      (function () {
+        var l;
+        try {
+          l = new URLSearchParams(location.search).get('lang');
+        } catch (e) {}
+        if (l !== 'zh' && l !== 'en') {
+          try {
+            l = localStorage.getItem('srh-lang');
+          } catch (e) {}
+        }
+        if (l !== 'en') return;
+        var title = 'Thinkloft · Your whole lab and AI, at one table';
+        var desc =
+          'Thinkloft is the multiplayer AI agent platform for research teams: the Coordinator breaks down projects, Threads run in parallel, docs sync live, Reviews close with an LGTM, and group meeting reports draft themselves — all on your own servers.';
+        document.documentElement.lang = 'en';
+        document.title = title;
+        var set = function (sel, v) {
+          var el = document.querySelector(sel);
+          if (el) el.setAttribute('content', v);
+        };
+        set('meta[name="description"]', desc);
+        set('meta[property="og:title"]', title);
+        set('meta[property="og:description"]', desc);
+        set('meta[property="og:site_name"]', 'Thinkloft');
+        set('meta[property="og:locale"]', 'en_US');
+        set('meta[property="og:image:alt"]', 'Thinkloft: your whole lab and AI, at one table');
+        set('meta[name="twitter:title"]', title);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

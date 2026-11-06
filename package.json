@@ -1,0 +1,41 @@
+{
+  "name": "yanxie",
+  "private": true,
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "研协：面向科研团队的多人协同 AI Agent 平台",
+  "type": "module",
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @srh/server --filter @srh/web dev",
+    "dev:server": "pnpm --filter @srh/server dev",
+    "dev:web": "pnpm --filter @srh/web dev",
+    "build": "pnpm --filter @srh/shared --filter @srh/web --filter @srh/server build",
+    "start": "pnpm --filter @srh/server start",
+    "db:generate": "pnpm --filter @srh/server db:generate",
+    "db:migrate": "pnpm --filter @srh/server db:migrate",
+    "db:studio": "pnpm --filter @srh/server db:studio",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "check": "pnpm lint && pnpm typecheck && pnpm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.5",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^5.0.5"
+  }
+}

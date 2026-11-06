@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light" data-palette="fudan" data-material="glass">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="研协：面向科研团队的多人协同 AI Agent 平台" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg?v=yanxie-2" />
+    <title>研协</title>
+    <script>
+      // 与 theme.ts 使用相同的校验和默认值；存储失败仍跟随系统。
+      (function () {
+        function read(key) {
+          try {
+            return localStorage.getItem(key);
+          } catch (e) {
+            return null;
+          }
+        }
+        var pref = read('srh-theme');
+        var palette = read('srh-palette');
+        var material = read('srh-material');
+        var root = document.documentElement;
+        root.dataset.theme =
+          pref === 'light' || pref === 'dark'
+            ? pref
+            : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        root.dataset.palette =
+          ['fudan', 'graphite', 'paper'].indexOf(palette) >= 0 ? palette : 'fudan';
+        root.dataset.material = material === 'solid' ? 'solid' : 'glass';
+        // 界面语言（与 lib/i18n.ts 相同的键）：英文界面先换掉标题，避免闪一下中文
+        if (read('srh-lang') === 'en') {
+          root.lang = 'en';
+          document.title = 'Thinkloft';
+          var meta = document.querySelector('meta[name="description"]');
+          if (meta)
+            meta.setAttribute(
+              'content',
+              'Thinkloft: a multi-person collaborative AI agent platform for research teams',
+            );
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

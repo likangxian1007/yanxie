@@ -1,0 +1,30 @@
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+*.tsbuildinfo
+.vite/
+
+# 本地数据（PGlite 开发库、上传文件）
+.data/
+data/
+
+# 工具链缓存（corepack 下载的 pnpm、pnpm 的本地 store），不是源码
+.corepack/
+.pnpm-store/
+
+# 环境变量：只提交 .env.example
+.env
+.env.*
+!.env.example
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.log
+tools/i18n/missing.json

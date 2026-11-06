@@ -1,0 +1,70 @@
+# 科研平台（scientific-research-harness）站点，由 deploy/bootstrap-server.sh 和 deploy.sh 渲染安装到
+# /etc/nginx/sites-available/srh.conf。占位符 __PUBLIC_PORT__ / __APP_PORT__ 来自 /srv/srh/.env。
+# 独立端口、独立变量名，不影响同机其他站点。
+
+map $http_upgrade $srh_connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+upstream srh_app {
+    server 127.0.0.1:__APP_PORT__;
+    keepalive 16;
+}
+
+server {
+    listen __PUBLIC_PORT__;
+    listen [::]:__PUBLIC_PORT__;
+    server_name _;
+
+    client_max_body_size 200m;
+
+    gzip on;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'" always;
+
+    # Vite 产物带内容 hash：长缓存（应用自己发 max-age=0，这里覆盖）
+    location /assets/ {
+        proxy_pass http://srh_app;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_hide_header Cache-Control;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header X-Content-Type-Options nosniff always;
+    }
+
+    access_log /var/log/nginx/srh.access.log;
+    error_log  /var/log/nginx/srh.error.log warn;
+
+    # WebSocket：/ws（应用事件）、/collab（Yjs 协同）
+    location ~ ^/(ws|collab) {
+        proxy_pass http://srh_app;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $srh_connection_upgrade;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 1h;
+        proxy_send_timeout 1h;
+    }
+
+    location / {
+        proxy_pass http://srh_app;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # 流式输出（agent 回复 SSE）不缓冲
+        proxy_buffering off;
+        proxy_read_timeout 600s;
+    }
+}

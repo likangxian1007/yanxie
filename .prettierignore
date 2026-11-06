@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+.data
+pnpm-lock.yaml
+apps/server/drizzle
+# formatting of deploy/ is owned by the deploy thread
+deploy/

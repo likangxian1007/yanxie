@@ -1,0 +1,1 @@
+ALTER TABLE "papers" ADD COLUMN "note_version" integer DEFAULT 1 NOT NULL;

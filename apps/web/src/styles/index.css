@@ -1,0 +1,566 @@
+/* ==========================================================================
+   研协 · 全局样式入口
+   - 令牌（颜色/阴影/动效时长）只在 tokens.css 里定义；这里只做 Tailwind 语义映射。
+   - 规范见仓库根目录 STYLE.md；组件只用这里映射出来的语义类。
+   ========================================================================== */
+
+@import 'tailwindcss';
+@import './tokens.css';
+
+/* 暗色变体跟随 <html data-theme="dark">，而不是系统媒体查询 */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* ---- 静态主题值（字体、圆角、字号、动画） ---- */
+@theme {
+  /* 禁用 Tailwind 默认色板：组件里只能用下面映射的语义色（STYLE §1.1） */
+  --color-*: initial;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC',
+    sans-serif;
+  --font-serif: 'Source Serif 4', 'Noto Serif SC', 'Songti SC', Georgia, serif;
+  --font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas,
+    monospace;
+
+  /* 圆角（STYLE §3） */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+
+  /* 字号 / 行高 / 字重（STYLE §2） */
+  --text-display: 1.875rem;
+  --text-display--line-height: 2.375rem;
+  --text-display--font-weight: 600;
+  --text-display--letter-spacing: -0.01em;
+  --text-h1: 1.5rem;
+  --text-h1--line-height: 2rem;
+  --text-h1--font-weight: 600;
+  --text-h2: 1.125rem;
+  --text-h2--line-height: 1.625rem;
+  --text-h2--font-weight: 600;
+  --text-h3: 0.9375rem;
+  --text-h3--line-height: 1.375rem;
+  --text-h3--font-weight: 600;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.375rem;
+  --text-prose: 0.9375rem;
+  --text-prose--line-height: 1.625rem;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.25rem;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-caption--font-weight: 500;
+
+  /* 动画（循环动画在 prefers-reduced-motion 下全部停在静止帧） */
+  --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-agent-sweep: agent-sweep 1.6s linear infinite;
+  --animate-pulse-ring: pulse-ring 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  --animate-caret: caret-blink 1s step-end infinite;
+  --animate-shake: shake 320ms cubic-bezier(0.2, 0, 0, 1) 1;
+  --animate-thinking-dot: thinking-dot 1.2s cubic-bezier(0.2, 0, 0, 1) infinite;
+  --animate-spin-slow: spin 2.4s linear infinite;
+  --animate-flash: flash 480ms cubic-bezier(0.16, 1, 0.3, 1) 1 both;
+
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes agent-sweep {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: 0% 0;
+    }
+  }
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    80%,
+    100% {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+  @keyframes caret-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-3px);
+    }
+    50% {
+      transform: translateX(3px);
+    }
+    75% {
+      transform: translateX(-2px);
+    }
+  }
+  @keyframes thinking-dot {
+    0%,
+    80%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.35;
+    }
+    40% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+  @keyframes flash {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}
+
+/* ---- 语义映射：直接引用 tokens.css 的运行时变量，明暗主题自动切换 ---- */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-subtle: var(--subtle);
+  --color-muted: var(--muted);
+  --color-overlay: var(--overlay);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-fg-inverse: var(--fg-inverse);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-accent-solid: var(--accent-solid);
+  --color-accent-solid-hover: var(--accent-solid-hover);
+  --color-ring: var(--ring);
+
+  --color-agent: var(--agent);
+  --color-agent-soft: var(--agent-soft);
+  --color-agent-text: var(--agent-text);
+
+  --color-success: var(--success);
+  --color-success-fg: var(--success-fg);
+  --color-success-soft: var(--success-soft);
+  /*
+   * text-warning 多是 12–14px 的小字，统一走更深的 warning-text（浅色 ≥ 4.5:1）；
+   * 需要琥珀色块的地方（编辑器高亮等）直接用 var(--warning)。
+   */
+  --color-warning: var(--warning-text);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-solid: var(--danger-solid);
+  --color-danger-solid-hover: var(--danger-solid-hover);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --color-palette-0: var(--palette-0);
+  --color-palette-1: var(--palette-1);
+  --color-palette-2: var(--palette-2);
+  --color-palette-3: var(--palette-3);
+  --color-palette-4: var(--palette-4);
+  --color-palette-5: var(--palette-5);
+  --color-palette-6: var(--palette-6);
+  --color-palette-7: var(--palette-7);
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-glow: var(--shadow-glow);
+
+  --ease-standard: var(--ease-standard);
+  --ease-out: var(--ease-out);
+  --ease-in: var(--ease-in);
+  --ease-overshoot: var(--ease-overshoot);
+}
+
+/* ---- 自定义工具类 ---- */
+
+/* agent 专属渐变（头像、协调者标识、生成中描边） */
+@utility bg-agent-gradient {
+  background-image: var(--agent-gradient);
+}
+
+/* z-index 层级（STYLE §3） */
+@utility z-base {
+  z-index: 0;
+}
+@utility z-sticky {
+  z-index: 10;
+}
+@utility z-sidebar {
+  z-index: 20;
+}
+@utility z-overlay {
+  z-index: 40;
+}
+@utility z-modal {
+  z-index: 50;
+}
+@utility z-popover {
+  z-index: 60;
+}
+@utility z-toast {
+  z-index: 70;
+}
+@utility z-tooltip {
+  z-index: 80;
+}
+
+/* 按压反馈：scale .97（80ms），颜色过渡 140ms */
+@utility press {
+  transition-property: scale, color, background-color, border-color, box-shadow, opacity;
+  transition-duration:
+    var(--dur-instant), var(--dur-fast), var(--dur-fast), var(--dur-fast), var(--dur-fast),
+    var(--dur-fast);
+  transition-timing-function: var(--ease-standard);
+  &:active:not(:disabled, [aria-disabled='true']) {
+    scale: 0.97;
+  }
+}
+
+/* Agent 思考中：渐变光带从左扫到右（1.6s 线性循环） */
+@utility agent-sweep {
+  background-image: linear-gradient(
+    90deg,
+    var(--fg-muted) 0%,
+    var(--fg-muted) 36%,
+    var(--agent) 44%,
+    var(--accent) 50%,
+    var(--agent) 56%,
+    var(--fg-muted) 64%,
+    var(--fg-muted) 100%
+  );
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: var(--animate-agent-sweep);
+}
+
+/* 骨架屏扫光：bg-subtle 上一道高光（只动 transform） */
+@utility skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--subtle);
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, transparent, var(--skeleton-highlight), transparent);
+    animation: var(--animate-shimmer);
+  }
+}
+
+/* 流式输出末尾的光标 */
+@utility stream-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  background-color: var(--agent);
+  animation: var(--animate-caret);
+}
+
+/* ---- 基础层 ---- */
+@layer base {
+  :root {
+    --skeleton-highlight: var(--surface);
+    /* 手机底部标签栏的高度（含安全区）；没有标签栏时为 0。整屏高度的页面用它扣掉标签栏 */
+    --tabbar-h: 0px;
+    /* 贴底元素还需要自己留的安全区：标签栏在时安全区由它占了，这里归零 */
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    /* 页面自己的吸底操作栏（如审阅的 LGTM / 要求修改）占的高度；Toast 等浮层停在它上面 */
+    --sticky-actions-h: 0px;
+  }
+  @media (max-width: 767.98px) {
+    :root:has([data-mobile-tabbar]) {
+      --tabbar-h: calc(3.5rem + 1px + env(safe-area-inset-bottom, 0px));
+      --safe-bottom: 0px;
+    }
+  }
+  @media (max-width: 1023.98px) {
+    /* 吸底栏：上下内边距 + 44px 按钮 + 1px 描边，再加它自己留的安全区 */
+    :root:has([data-sticky-actions]) {
+      --sticky-actions-h: calc(3.5rem + 1px + max(var(--safe-bottom), 0.625rem));
+    }
+  }
+  :root[data-theme='dark'] {
+    --skeleton-highlight: var(--muted);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-body text-fg antialiased;
+    font-feature-settings:
+      'cv11' 1,
+      'ss01' 1;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  #root {
+    isolation: isolate;
+  }
+
+  /* 全局焦点样式：2px accent 描边 + 2px 偏移 */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--accent) 24%, transparent);
+  }
+
+  /* 细滚动条：默认几乎不可见，悬停时加深 */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background-color: var(--line-strong);
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--fg-subtle);
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* 不支持 View Transition 时，仅对承载表面作局部颜色过渡。 */
+.theme-transition body,
+.theme-transition .chrome,
+.theme-transition .chrome-popover,
+.theme-transition main {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+html.theme-view-transition::view-transition-group(root) {
+  animation: none;
+}
+html.theme-view-transition::view-transition-image-pair(root) {
+  isolation: isolate;
+}
+html.theme-view-transition::view-transition-old(root) {
+  animation: theme-fade-out 180ms ease both;
+  mix-blend-mode: normal;
+}
+html.theme-view-transition::view-transition-new(root) {
+  animation: theme-fade-in 180ms ease both;
+  mix-blend-mode: normal;
+}
+@keyframes theme-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes theme-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+ * 手机触屏：输入框字号不低于 16px。iOS Safari 聚焦小于 16px 的输入框会自动放大整页，
+ * 放大后不会自己缩回去。不放进 @layer，才能盖过 text-body 等工具类。
+ */
+@media (max-width: 767.98px) and (pointer: coarse) {
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='color'], [type='file']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* ---- 减少动态效果：循环停在静止帧，位移/缩放取消 ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse-ring,
+  .animate-shimmer,
+  .animate-caret,
+  .animate-thinking-dot,
+  .animate-spin-slow,
+  .animate-shake,
+  .skeleton-shimmer::after {
+    animation: none !important;
+  }
+
+  .animate-thinking-dot {
+    opacity: 0.6;
+  }
+
+  /*
+   * 旋转加载图标（Spinner、lucide Loader 等 animate-spin）：不再旋转，
+   * 改为原地缓慢明暗呼吸，仍看得出在加载。比上面 * 的 iteration-count: 1 更具体，可以继续循环。
+   */
+  .animate-spin {
+    animation: reduced-loading-pulse 1.6s ease-in-out infinite !important;
+  }
+
+  @keyframes reduced-loading-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  /* 思考中显示静态渐变文字 */
+  .agent-sweep {
+    animation: none !important;
+    background-image: var(--agent-gradient);
+    background-size: 100% 100%;
+  }
+
+  .press:active {
+    scale: none !important;
+  }
+}
+
+/* 工作台材质只用于外壳与浮层，正文/代码/表格保持实底。 */
+@utility chrome {
+  background: var(--chrome);
+  -webkit-backdrop-filter: var(--chrome-blur);
+  backdrop-filter: var(--chrome-blur);
+}
+@utility chrome-popover {
+  background: var(--chrome-elevated);
+  -webkit-backdrop-filter: var(--chrome-blur);
+  backdrop-filter: var(--chrome-blur);
+  box-shadow:
+    inset 0 1px 0 var(--chrome-highlight),
+    var(--shadow-lg);
+}
+@utility research-list {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+@utility research-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 64px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* 专业工具栏与抽屉沿用的模糊工具类也服从材质选择。遮罩保留透明度以显示层级。 */
+:root[data-material='solid'] [class*='backdrop-blur'] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-material='solid'] [class*='backdrop-blur'][class*='bg-canvas/'] {
+  background-color: var(--canvas);
+}
+:root[data-material='solid'] [class*='backdrop-blur'][class*='bg-elevated/'] {
+  background-color: var(--elevated);
+}
+@media (max-width: 767px) {
+  button,
+  a,
+  [role='radio'] {
+    touch-action: manipulation;
+  }
+  .chrome button,
+  .chrome a,
+  [role='radiogroup'] button {
+    min-height: 44px;
+  }
+}
+
+/* 官方校徽作为静态背景：原图仅裁出左侧完整校徽，不参与交互或内容布局。 */
+.workspace-watermark {
+  position: absolute;
+  right: clamp(32px, 4vw, 64px);
+  bottom: 112px;
+  width: clamp(280px, 28vw, 420px);
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  filter: grayscale(1);
+  mix-blend-mode: multiply;
+  opacity: 0.035;
+}
+:root[data-theme='dark'] .workspace-watermark {
+  filter: grayscale(1) invert(1);
+  mix-blend-mode: screen;
+  opacity: 0.045;
+}
+@media (max-width: 1023px), print {
+  .workspace-watermark {
+    display: none;
+  }
+}

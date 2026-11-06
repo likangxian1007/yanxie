@@ -1,0 +1,158 @@
+# 自托管：docker compose --env-file .env up -d --build
+# 对外只暴露 127.0.0.1:${APP_PORT}，由宿主机 Caddy/Nginx 反代（需透传 /ws 与 /collab 的 WebSocket 升级）。
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-srh}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?请在 .env 里设置 POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-srh}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-srh} -d ${POSTGRES_DB:-srh}']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      args:
+        # 部署子路径（例如 /app/），构建时写进前端；来自 .env 的 WEB_BASE_PATH，默认根路径
+        VITE_BASE_PATH: ${WEB_BASE_PATH:-/}
+    image: srh-app:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: 8787
+      DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER:-srh}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-srh}}
+      DB_AUTO_MIGRATE: ${DB_AUTO_MIGRATE:-true}
+      TRUST_PROXY: ${TRUST_PROXY:-true}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8787}
+      SESSION_SECRET: ${SESSION_SECRET:?请在 .env 里设置 SESSION_SECRET}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.deepseek.com}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-deepseek-chat}
+      LLM_MODEL_REASONING: ${LLM_MODEL_REASONING:-deepseek-reasoner}
+      STORAGE_DIR: /data/storage
+      LATEX_COMPILER: ${LATEX_COMPILER:-tectonic}
+      LATEX_CACHE_DIR: /data/latex-cache
+      # OCR 语言包（chi_sim/eng，首次读图时下载）放持久卷，重启不再重下
+      OCR_LANG_DIR: /data/ocr-lang
+      # 联网搜索：部署默认开启，.env 里 AGENT_WEB=false 可关
+      AGENT_WEB: ${AGENT_WEB:-true}
+      SEARXNG_URL: ${SEARXNG_URL:-http://searxng:8080}
+      # Notebook 内核：app 通过 docker-proxy 按项目起隔离容器（镜像由 deploy/deploy.sh 构建，见 deploy/kernel）
+      KERNEL_MODE: ${KERNEL_MODE:-docker}
+      DOCKER_HOST: tcp://docker-proxy:2375
+      KERNEL_IMAGE: ${KERNEL_IMAGE:-srh-kernel:latest}
+      KERNEL_CPUS: ${KERNEL_CPUS:-2}
+      KERNEL_MEMORY_MB: ${KERNEL_MEMORY_MB:-2048}
+      KERNEL_IDLE_MINUTES: ${KERNEL_IDLE_MINUTES:-60}
+      KERNEL_MAX_RUNNING: ${KERNEL_MAX_RUNNING:-3}
+      KERNEL_ALLOW_INTERNET: ${KERNEL_ALLOW_INTERNET:-false}
+      # pip install 只能走下面的 pypi-proxy（白名单只有 PyPI）；设为空字符串则内核完全不能联网
+      KERNEL_PIP_PROXY_CONTAINER: ${KERNEL_PIP_PROXY_CONTAINER-srh-pypi-proxy}
+      # 文献库：论文版面解析（GROBID，见下方 grobid 服务）
+      PAPER_PARSER: ${PAPER_PARSER:-grobid}
+      GROBID_URL: ${GROBID_URL:-http://grobid:8070}
+      CROSSREF_MAILTO: ${CROSSREF_MAILTO:-}
+    volumes:
+      - storage:/data/storage
+      # Tectonic 宏包缓存（首次编译按需下载，之后复用）
+      - latex-cache:/data/latex-cache
+      # OCR 语言包
+      - ocr-lang:/data/ocr-lang
+    networks:
+      - default
+      - dockerapi
+    ports:
+      - '127.0.0.1:${APP_PORT:-8787}:8787'
+
+  # Notebook 内核的 pip 出网代理：只放行 pypi.org / files.pythonhosted.org（deploy/pypi-proxy/filter）。
+  # app 起内核时把它接入该项目的 internal 内核网络（别名 pypi-proxy）；它自己只在 default 网络上出网。
+  pypi-proxy:
+    build: deploy/pypi-proxy
+    image: srh-pypi-proxy:latest
+    container_name: srh-pypi-proxy
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    mem_limit: 64m
+    networks:
+      - default
+
+  # 自托管元搜索引擎，只在 Compose 内网给 app 用，不发布端口（ARCHITECTURE.md §12）
+  searxng:
+    image: searxng/searxng:2026.10.25-54ca1d9cf
+    restart: unless-stopped
+    environment:
+      # 建议在 .env 里设 SEARXNG_SECRET（openssl rand -hex 32）；不对外暴露，留空也能跑
+      SEARXNG_SECRET: ${SEARXNG_SECRET:-}
+      SEARXNG_BASE_URL: http://searxng:8080/
+    volumes:
+      - ./deploy/searxng/settings.yml:/etc/searxng/settings.yml:ro
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETGID, SETUID]
+    security_opt: ['no-new-privileges:true']
+    mem_limit: 512m
+    cpus: 1
+
+  # 只开放 app 起内核 / 云电脑容器需要的 Docker API（app 不直接挂 docker.sock）；只有 app 能连到它。
+  # 云电脑的 VNC 走 docker exec 的连接劫持（HTTP 101 Upgrade），这个代理会原样透传。
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    restart: unless-stopped
+    environment:
+      CONTAINERS: 1
+      IMAGES: 1
+      NETWORKS: 1
+      VOLUMES: 1
+      EXEC: 1
+      POST: 1
+      INFO: 1
+      PING: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - dockerapi
+
+  # 文献库的论文解析服务（GROBID 0.9.1，CRF 模型，纯 CPU；镜像约 1.7 GB）。
+  # 实测（4 vCPU / 7.4 GB 内存，15 页论文）：常驻约 2–3 GB（CRF 模型预加载，主要是堆外内存），
+  # 冷启动后首篇约 45 s，之后每篇约 6 s。2.5 GB 硬上限且无 swap 会在启动时 OOM；
+  # 空闲常驻约 2.9 GiB（堆外 CRF 模型，-Xmx 管不到）。3g 上限会贴着顶频繁换页、拖垮整机，
+  # 所以默认 4g + 1g swap 余量；内存紧时可改 2g 上限 + swap（见 deploy/README.md）。应用一次只送一篇，不需要再限并发。
+  # 不想跑 GROBID：删掉这个服务即可，论文会降级为逐页纯文本。
+  grobid:
+    image: grobid/grobid:0.9.1-crf
+    restart: unless-stopped
+    init: true
+    environment:
+      JAVA_OPTS: ${GROBID_JAVA_OPTS:--Xmx768m -XX:+UseSerialGC}
+      MALLOC_ARENA_MAX: '2'
+    mem_limit: ${GROBID_MEM_LIMIT:-4g}
+    memswap_limit: ${GROBID_MEMSWAP_LIMIT:-5g}
+    # 只在 default 网络：app 通过 http://grobid:8070 访问；不接 dockerapi
+    networks:
+      - default
+
+volumes:
+  pgdata:
+  storage:
+  latex-cache:
+  ocr-lang:
+
+networks:
+  default:
+  dockerapi:
+    internal: true

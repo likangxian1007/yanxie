@@ -1,0 +1,78 @@
+[
+  {
+    "file": "iris.csv",
+    "title": "UCI Iris — Fisher (1936), donated by R. A. Fisher (1988)",
+    "url": "https://archive.ics.uci.edu/static/public/53/iris.zip",
+    "retrievedAt": "2026-10-28",
+    "upstreamSha256": "d11fe30213d36434a0879aab7cb00ce3c812eb7ba2495874438abff7b7b762e9",
+    "sha256": "b9c2c79bfac42185ece47e3c0ac4b646594eccc0cf279546dd336b626ec9e70c",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://archive.ics.uci.edu/dataset/53/iris",
+    "transformation": "Archive iris.data, all 150 observations unchanged; added explicit column header. No correction of historical values.",
+    "doi": "10.24432/C56C76"
+  },
+  {
+    "file": "penguins.csv",
+    "title": "Palmer Penguins — Horst, Hill & Gorman (2020)",
+    "url": "https://raw.githubusercontent.com/allisonhorst/palmerpenguins/8957207b78d6ccd1b4654a9dd9c9041b657478ab/inst/extdata/penguins.csv",
+    "retrievedAt": "2026-10-28",
+    "upstreamSha256": "f204db2c753b0937caac3cb35258562c14f073e4bbc76be24b4c51ce22767a93",
+    "sha256": "f204db2c753b0937caac3cb35258562c14f073e4bbc76be24b4c51ce22767a93",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://github.com/allisonhorst/palmerpenguins/blob/8957207b78d6ccd1b4654a9dd9c9041b657478ab/LICENSE",
+    "transformation": "Unchanged upstream CSV; NA values retained.",
+    "upstreamRevision": "8957207b78d6ccd1b4654a9dd9c9041b657478ab"
+  },
+  {
+    "file": "misra1a.dat",
+    "title": "NIST StRD Misra1a — Misra (1978), Dental Research Monomolecular Adsorption Study",
+    "url": "https://www.itl.nist.gov/div898/strd/nls/data/LINKS/DATA/Misra1a.dat",
+    "retrievedAt": "2026-10-28",
+    "upstreamSha256": "9d3194d537d9a6bbf92eb819504070923a1885d0191f40b6b3aaeedd130b98e2",
+    "sha256": "45c8da1de19d1cd0bdcefe06e333dee7ec8b31fa5c58b4eada427a7777853650",
+    "license": "NIST public data; attribution retained",
+    "licenseUrl": "https://www.nist.gov/open/license",
+    "transformation": "Normalized CRLF to LF and removed trailing ASCII whitespace only; numeric observations and certified results unchanged. Original bytes preserved in misra1a-original.dat.gz; decompressed SHA-256 equals upstreamSha256. Units are unspecified.",
+    "originalArchive": "misra1a-original.dat.gz"
+  },
+  {
+    "file": "wollstonecraft-1.txt",
+    "title": "Mary Wollstonecraft (1792), A Vindication of the Rights of Woman, excerpt 1",
+    "url": "https://www.gutenberg.org/cache/epub/3420/pg3420.txt",
+    "retrievedAt": "2026-10-28",
+    "upstreamSha256": "7d79652f43541759d8ff0ce467372fa4a534d3f9dc32013e01ca99ea04b286a8",
+    "sha256": "402b1f84797142b3ec9e8ceec07e76eeb37c39fd780a0694fa65f7353321f938",
+    "license": "Public-domain original text; Project Gutenberg eBook #3420",
+    "licenseUrl": "https://www.gutenberg.org/ebooks/3420",
+    "transformation": "Original English paragraph, upstream lines 1239–1254; line wrapping normalized to spaces. No paraphrase.",
+    "edition": "Project Gutenberg #3420, last updated 2021-01-08",
+    "originalLines": [1239, 1254],
+    "attribution": "Transcription: Amy E Zelmer, Col Choat, Sue Asscher. Original author died 1797."
+  },
+  {
+    "file": "wollstonecraft-2.txt",
+    "title": "Mary Wollstonecraft (1792), A Vindication of the Rights of Woman, excerpt 2",
+    "url": "https://www.gutenberg.org/cache/epub/3420/pg3420.txt",
+    "retrievedAt": "2026-10-28",
+    "upstreamSha256": "7d79652f43541759d8ff0ce467372fa4a534d3f9dc32013e01ca99ea04b286a8",
+    "sha256": "1b0bafd1c552e05901e7eec24362022c6c130f8c0b3a1adac8c0cbeb7c234631",
+    "license": "Public-domain original text; Project Gutenberg eBook #3420",
+    "licenseUrl": "https://www.gutenberg.org/ebooks/3420",
+    "transformation": "Original English paragraph, upstream lines 2950–2963; line wrapping normalized to spaces. No paraphrase.",
+    "edition": "Project Gutenberg #3420, last updated 2021-01-08",
+    "originalLines": [2950, 2963],
+    "attribution": "Transcription: Amy E Zelmer, Col Choat, Sue Asscher. Original author died 1797."
+  },
+  {
+    "file": "infinite-primes.lean",
+    "title": "mathlib: Nat.exists_infinite_primes — de Moura, Avigad, Carneiro",
+    "url": "https://raw.githubusercontent.com/leanprover-community/mathlib4/a74bf10698f3ffbe140547bcb3f36401540da755/Mathlib/Data/Nat/Prime/Infinite.lean",
+    "retrievedAt": "2026-10-28",
+    "upstreamSha256": "3f3e7ade1a782d58b1841a70f4a3ad143f365a59cb7bd9457858030ef167581c",
+    "sha256": "3f3e7ade1a782d58b1841a70f4a3ad143f365a59cb7bd9457858030ef167581c",
+    "license": "Apache-2.0",
+    "licenseUrl": "https://github.com/leanprover-community/mathlib4/blob/a74bf10698f3ffbe140547bcb3f36401540da755/LICENSE",
+    "transformation": "Unchanged upstream file with copyright and author header. Used as reference text; tests do not execute Lean.",
+    "upstreamRevision": "a74bf10698f3ffbe140547bcb3f36401540da755"
+  }
+]

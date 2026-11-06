@@ -1,0 +1,19 @@
+/* 导入进度条的不定状态：只动 transform（STYLE：动画只用 transform / opacity） */
+@keyframes import-indeterminate {
+  0% {
+    transform: translateX(-35%) scaleX(0.35);
+  }
+  100% {
+    transform: translateX(100%) scaleX(0.35);
+  }
+}
+
+.import-indeterminate {
+  animation: import-indeterminate 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .import-indeterminate {
+    animation: none;
+  }
+}

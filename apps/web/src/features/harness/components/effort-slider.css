@@ -1,0 +1,58 @@
+.effort-control {
+  position: relative;
+  height: 36px;
+  margin-top: 4px;
+}
+.effort-rail {
+  position: absolute;
+  inset: 16.5px 0 auto;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--line-strong);
+  pointer-events: none;
+}
+.effort-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--dur-fast) var(--ease-standard);
+}
+.effort-thumb {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--fg);
+  box-shadow: 0 1px 3px var(--overlay);
+  transition:
+    left var(--dur-fast) var(--ease-standard),
+    scale var(--dur-fast) var(--ease-standard);
+}
+.effort-control:active .effort-thumb {
+  scale: 1.12;
+}
+/* Native input owns pointer, keyboard and accessibility; the visual layer animates. */
+.effort-slider {
+  position: absolute;
+  inset: 0 -8px;
+  width: calc(100% + 16px);
+  height: 36px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.effort-control:has(:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .effort-fill,
+  .effort-thumb {
+    transition: none;
+  }
+}

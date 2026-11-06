@@ -1,0 +1,669 @@
+/* ==========================================================================
+   LaTeX 编辑器：CodeMirror 容器、分栏、A4 纸排版预览、打印样式
+   只用 tokens.css 的变量（var(--*)）。
+   ========================================================================== */
+
+.ltx-cm-host .cm-editor {
+  height: 100%;
+}
+
+.ltx-toolbar-scroll {
+  scrollbar-width: none;
+}
+.ltx-toolbar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 479px) {
+  .ltx-view-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+.ltx-divider {
+  touch-action: none;
+}
+
+/* ---------------------------------------------------------------- 预览容器 */
+
+.ltx-preview-scroll {
+  padding: 24px 16px 40vh;
+  overscroll-behavior: contain;
+}
+.ltx-preview-scroll:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+@media (max-width: 640px) {
+  .ltx-preview-scroll {
+    padding: 12px 8px 40vh;
+  }
+}
+
+/* ---------------------------------------------------------------- A4 纸 */
+
+.ltx-paper {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--doc-max, 820px);
+  min-height: min(1160px, 100%);
+  margin: 0 auto;
+  padding: 72px 76px 88px;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: justify;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  font-variant-numeric: lining-nums;
+}
+
+@media (max-width: 900px) {
+  .ltx-paper {
+    padding: 48px 40px 64px;
+  }
+}
+@media (max-width: 640px) {
+  .ltx-paper {
+    padding: 28px 18px 40px;
+    font-size: 14.5px;
+  }
+}
+
+.ltx-block > * + * {
+  margin-top: 0.75em;
+}
+.ltx-block + .ltx-block {
+  margin-top: 0.75em;
+}
+.ltx-paper p {
+  margin: 0;
+  text-indent: 0;
+}
+
+.ltx-paper a.ltx-ref {
+  color: var(--accent-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+.ltx-paper a.ltx-ref:hover {
+  text-decoration: underline;
+}
+.ltx-paper a.ltx-url {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--accent) 40%, transparent);
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+.ltx-target {
+  animation: ltx-target-flash 1.4s var(--ease-out);
+}
+@keyframes ltx-target-flash {
+  0%,
+  30% {
+    background-color: color-mix(in oklab, var(--accent) 18%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* ---------------------------------------------------------------- 标题块 */
+
+.ltx-titleblock {
+  margin-bottom: 2em;
+  text-align: center;
+}
+.ltx-title {
+  margin: 0 0 0.6em;
+  font-size: 1.75em;
+  line-height: 1.3;
+  font-weight: 600;
+  text-wrap: balance;
+}
+.ltx-authors {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25em 2.5em;
+  font-size: 1.05em;
+}
+.ltx-author {
+  white-space: pre-line;
+}
+.ltx-date {
+  margin-top: 0.6em;
+  color: var(--fg-muted);
+}
+
+.ltx-abstract {
+  margin: 1.5em auto 2em;
+  max-width: 88%;
+  font-size: 0.93em;
+}
+.ltx-abstract-title {
+  margin-bottom: 0.4em;
+  text-align: center;
+  font-weight: 600;
+}
+.ltx-abstract p + p {
+  margin-top: 0.5em;
+}
+
+/* ---------------------------------------------------------------- 章节 */
+
+.ltx-h {
+  margin: 1.6em 0 0.6em;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+  scroll-margin-top: 24px;
+}
+.ltx-block:first-child .ltx-h {
+  margin-top: 0;
+}
+.ltx-h0 {
+  font-size: 1.6em;
+}
+.ltx-h1 {
+  font-size: 1.3em;
+}
+.ltx-h2 {
+  font-size: 1.12em;
+}
+.ltx-h3 {
+  font-size: 1em;
+}
+.ltx-secnum {
+  margin-right: 0.8em;
+  font-variant-numeric: tabular-nums;
+}
+.ltx-paper-linked .ltx-h {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 150ms var(--ease-out);
+}
+.ltx-paper-linked .ltx-h:hover {
+  background-color: var(--subtle);
+}
+.ltx-runin {
+  margin-right: 0.6em;
+}
+
+/* ---------------------------------------------------------------- 行内 */
+
+.ltx-tt,
+.ltx-paper code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+.ltx-sc {
+  font-variant: small-caps;
+}
+.ltx-sf {
+  font-family: var(--font-sans);
+}
+.ltx-fbox {
+  padding: 0 0.25em;
+  border: 1px solid var(--fg-muted);
+}
+.ltx-mark {
+  background-color: color-mix(in oklab, var(--warning) 30%, transparent);
+  color: inherit;
+}
+.ltx-phantom {
+  visibility: hidden;
+}
+.ltx-centerline {
+  display: block;
+  text-align: center;
+}
+.ltx-quad {
+  display: inline-block;
+  width: 1em;
+}
+.ltx-qquad {
+  display: inline-block;
+  width: 2em;
+}
+.ltx-hfill {
+  display: inline-block;
+  width: 2em;
+}
+.ltx-logo {
+  font-family: var(--font-serif);
+  letter-spacing: 0;
+}
+.ltx-logo-a {
+  position: relative;
+  top: -0.2em;
+  margin: 0 -0.15em 0 -0.36em;
+  font-size: 0.75em;
+}
+.ltx-logo-e {
+  position: relative;
+  top: 0.22em;
+  margin: 0 -0.1em 0 -0.16em;
+}
+.ltx-unknown {
+  padding: 0 0.15em;
+  border-radius: 3px;
+  background-color: var(--subtle);
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+}
+.ltx-ref-missing {
+  color: var(--danger);
+  font-weight: 600;
+}
+.ltx-math-error {
+  color: var(--danger);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background-color: var(--danger-soft);
+  border-radius: 3px;
+  padding: 0 0.2em;
+  white-space: pre-wrap;
+}
+div.ltx-math-error {
+  display: block;
+  padding: 0.5em 0.75em;
+}
+.ltx-note {
+  color: var(--fg-subtle);
+  font-family: var(--font-sans);
+  font-size: 0.82em;
+}
+.ltx-fnref {
+  font-size: 0.72em;
+  line-height: 0;
+}
+
+/* ---------------------------------------------------------------- 公式 */
+
+.ltx-display {
+  margin: 0.9em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.ltx-display .katex-display {
+  margin: 0;
+}
+.ltx-paper .katex {
+  font-size: 1.08em;
+}
+
+/* ---------------------------------------------------------------- 列表 */
+
+.ltx-list {
+  margin: 0.6em 0;
+  padding: 0;
+  list-style: none;
+}
+.ltx-list > li {
+  display: flex;
+  gap: 0.5em;
+  padding-left: 0.4em;
+}
+.ltx-list > li + li {
+  margin-top: 0.3em;
+}
+.ltx-item-label {
+  flex: none;
+  min-width: 1.3em;
+  text-align: right;
+}
+.ltx-item-body {
+  min-width: 0;
+  flex: 1;
+}
+.ltx-item-body > * + * {
+  margin-top: 0.4em;
+}
+.ltx-desc {
+  margin: 0.6em 0;
+}
+.ltx-desc dt {
+  font-weight: 600;
+}
+.ltx-desc dd {
+  margin: 0 0 0.4em 1.6em;
+}
+
+/* ---------------------------------------------------------------- 定理、引用、代码 */
+
+.ltx-thm,
+.ltx-proof {
+  margin: 0.9em 0;
+}
+.ltx-thm > p {
+  font-style: italic;
+}
+.ltx-thm-plain > p {
+  font-style: normal;
+}
+.ltx-thm-head {
+  font-style: normal;
+  font-weight: 600;
+}
+.ltx-proof .ltx-thm-head {
+  font-weight: 400;
+  font-style: italic;
+}
+.ltx-qed {
+  float: right;
+  margin-left: 1em;
+}
+.ltx-quote {
+  margin: 0.9em 2em;
+}
+.ltx-quote > * + * {
+  margin-top: 0.5em;
+}
+.ltx-code {
+  position: relative;
+  margin: 0.9em 0;
+  padding: 0.8em 1em;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background-color: var(--subtle);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  line-height: 1.6;
+  text-align: left;
+  white-space: pre;
+  hyphens: none;
+}
+.ltx-code code {
+  font-size: 1em;
+}
+.ltx-code-lang {
+  position: absolute;
+  top: 0.4em;
+  right: 0.7em;
+  color: var(--fg-subtle);
+  font-family: var(--font-sans);
+  font-size: 0.85em;
+}
+.ltx-center {
+  text-align: center;
+}
+.ltx-flushright {
+  text-align: right;
+}
+.ltx-flushleft {
+  text-align: left;
+}
+.ltx-env {
+  margin: 0.9em 0;
+  padding-left: 0.8em;
+  border-left: 2px dashed var(--line-strong);
+}
+.ltx-env-tag {
+  display: inline-block;
+  margin-bottom: 0.3em;
+}
+
+/* ---------------------------------------------------------------- 图表 */
+
+.ltx-float {
+  margin: 1.4em 0;
+  text-align: center;
+}
+.ltx-float > p {
+  text-align: center;
+}
+.ltx-caption {
+  margin: 0.6em auto 0;
+  max-width: 92%;
+  font-size: 0.92em;
+  text-align: left;
+}
+.ltx-float .ltx-caption {
+  text-align: center;
+}
+.ltx-caption-label {
+  margin-right: 0.6em;
+  font-weight: 600;
+}
+.ltx-table .ltx-caption {
+  margin: 0 auto 0.6em;
+}
+.ltx-graphic {
+  display: inline-flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  width: 60%;
+  max-width: 100%;
+  min-height: 9em;
+  padding: 1em;
+  vertical-align: middle;
+  border: 1px dashed var(--line-strong);
+  border-radius: 6px;
+  background-color: var(--subtle);
+  color: var(--fg-subtle);
+  text-align: center;
+}
+.ltx-graphic-name {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+}
+.ltx-subfloat,
+.ltx-minipage {
+  display: inline-block;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 0 0.5em;
+  vertical-align: top;
+}
+.ltx-subfloat .ltx-graphic {
+  width: 100%;
+}
+
+.ltx-tabular-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.ltx-tabular {
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: 0.92em;
+  line-height: 1.45;
+}
+.ltx-tabular td {
+  padding: 0.3em 0.7em;
+  vertical-align: top;
+}
+.ltx-al-l {
+  text-align: left;
+}
+.ltx-al-c {
+  text-align: center;
+}
+.ltx-al-r {
+  text-align: right;
+}
+.ltx-bl {
+  border-left: 1px solid var(--fg);
+}
+.ltx-br {
+  border-right: 1px solid var(--fg);
+}
+.ltx-bt {
+  border-top: 1px solid var(--fg);
+}
+.ltx-bt2 {
+  border-top: 3px double var(--fg);
+}
+.ltx-btk {
+  border-top: 1.5px solid var(--fg);
+}
+.ltx-bb {
+  border-bottom: 1px solid var(--fg);
+}
+.ltx-bb2 {
+  border-bottom: 3px double var(--fg);
+}
+.ltx-bbk {
+  border-bottom: 1.5px solid var(--fg);
+}
+
+/* ---------------------------------------------------------------- 目录、文献、脚注 */
+
+.ltx-toc {
+  margin: 1em 0 1.6em;
+}
+.ltx-toc-title {
+  margin-bottom: 0.5em;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+.ltx-toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ltx-toc li {
+  margin: 0.15em 0;
+}
+.ltx-toc a.ltx-ref {
+  color: inherit;
+}
+.ltx-toc-l1 {
+  font-weight: 600;
+}
+.ltx-toc-l2 {
+  padding-left: 1.5em;
+}
+.ltx-toc-l3 {
+  padding-left: 3em;
+}
+
+.ltx-bib-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92em;
+  text-align: left;
+}
+.ltx-bib-list > li {
+  display: flex;
+  gap: 0.6em;
+}
+.ltx-bib-list > li + li {
+  margin-top: 0.4em;
+}
+.ltx-bib-label {
+  flex: none;
+  min-width: 2.2em;
+}
+.ltx-bib-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.ltx-footnotes {
+  margin-top: 2.5em;
+  padding-top: 0.6em;
+  border-top: 1px solid var(--line-strong);
+  font-size: 0.85em;
+}
+.ltx-footnotes ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ltx-footnotes li {
+  display: flex;
+  gap: 0.5em;
+}
+.ltx-fn-mark {
+  flex: none;
+  min-width: 1.2em;
+  font-size: 0.85em;
+  vertical-align: super;
+}
+
+/* ---------------------------------------------------------------- 打印（导出 PDF） */
+
+.ltx-print-body {
+  margin: 0;
+  background: var(--surface);
+}
+.ltx-paper.ltx-print {
+  max-width: none;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 22mm 20mm;
+  }
+  .ltx-print-body {
+    background: none;
+  }
+  .ltx-paper.ltx-print {
+    font-size: 11pt;
+    color: var(--fg);
+  }
+  .ltx-print .ltx-h,
+  .ltx-print .ltx-float,
+  .ltx-print .ltx-display,
+  .ltx-print .ltx-titleblock {
+    break-inside: avoid;
+  }
+  .ltx-print .ltx-h {
+    break-after: avoid;
+  }
+  .ltx-print .ltx-display,
+  .ltx-print .ltx-tabular-wrap,
+  .ltx-print .ltx-code {
+    overflow: visible;
+  }
+  .ltx-print .ltx-code {
+    white-space: pre-wrap;
+  }
+  .ltx-print a.ltx-ref,
+  .ltx-print a.ltx-url {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ltx-print .ltx-unknown {
+    background: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ltx-target {
+    animation: none;
+  }
+  .ltx-paper-linked .ltx-h {
+    transition: none;
+  }
+}

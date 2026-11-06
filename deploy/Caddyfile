@@ -1,0 +1,42 @@
+# 只在机器上没有 nginx 时使用（见 deploy/proxy.sh）。占位符来自 /srv/srh/.env。
+# 有域名后把 ":__PUBLIC_PORT__" 换成域名（例如 lab.example.com），Caddy 会自动申请 HTTPS 证书，
+# 同时把 .env 里的 PUBLIC_URL 改成 https://域名 再重新部署。
+:__PUBLIC_PORT__ {
+	encode zstd gzip
+
+	# WebSocket（/ws、/collab）由 reverse_proxy 自动处理 Upgrade
+	reverse_proxy 127.0.0.1:__APP_PORT__ {
+		flush_interval -1
+		transport http {
+			read_timeout 1h
+		}
+	}
+
+	request_body {
+		max_size 200MB
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		# 防点击劫持：只允许本站自己嵌入（第三方 iframe 不能诱导点 LGTM / 接管云电脑）
+		X-Frame-Options SAMEORIGIN
+		Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
+		-Server
+	}
+
+	# Vite 产物文件名带内容 hash：长缓存，二次打开不再逐个重新验证几十个分片。
+	# ">" 表示在上游响应写出时覆盖（应用自己发的是 max-age=0）。index.html 不在 /assets 下，保持不缓存。
+	@hashed path /assets/*
+	header @hashed >Cache-Control "public, max-age=31536000, immutable"
+
+	log {
+		output file /var/log/caddy/srh-access.log {
+			roll_size 20MiB
+			roll_keep 5
+		}
+	}
+}
+
+# 服务器本地站点（域名、子路径等），放在 /etc/caddy/conf.d/*.caddy，部署不会覆盖。
+import /etc/caddy/conf.d/*.caddy

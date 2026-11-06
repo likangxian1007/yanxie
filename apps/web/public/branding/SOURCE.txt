@@ -1,0 +1,5 @@
+复旦大学官方标识系统公开展示素材（原文件未修改）
+页面：https://www.fudan.edu.cn/bsxt/
+图片：https://www.fudan.edu.cn/_upload/article/images/72/fa/4a0ce26f42aa9edc5174c3b9c347/6ceb9e34-31ef-4e75-a5b5-7779c9eb3d44.png
+取得日期：2026-10-27
+仅以 SVG viewBox 展示左侧完整蓝色校徽，CSS 灰度与低透明度用于用户要求的背景水印预览。研协独立标记不变。

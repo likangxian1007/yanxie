@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Attention Is All You Need</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2023-08-02">2 Aug 2023</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct status="extracted">
+					<analytic>
+						<author>
+							<persName><forename type="first">Ashish</forename><surname>Vaswani</surname></persName>
+							<email>avaswani@google.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Google</forename><surname>Brain</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Noam</forename><surname>Shazeer</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Niki</forename><surname>Parmar</surname></persName>
+							<email>nikip@google.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Google</forename><surname>Research</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Jakob</forename><surname>Uszkoreit</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Llion</forename><surname>Jones</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Aidan</forename><forename type="middle">N</forename><surname>Gomez</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Łukasz</forename><surname>Kaiser</surname></persName>
+							<email>lukaszkaiser@google.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">University of Toronto</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Illia</forename><surname>Polosukhin</surname></persName>
+							<email>illia.polosukhin@gmail.com</email>
+							<affiliation key="aff1">
+								<orgName type="laboratory">Work performed while at Google Research. 31st Conference on Neural Information Processing Systems (NIPS 2017)</orgName>
+								<address>
+									<settlement>Long Beach</settlement>
+									<region>CA</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Attention Is All You Need</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2023-08-02">2 Aug 2023</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">18E1B007A1DAB45B30CC861BA2DFDA25</idno>
+					<idno type="arXiv">arXiv:1706.03762v7[cs.CL]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.9.1" ident="GROBID" when="2026-10-26T15:34+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">0.9.1</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=true, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[p, head, figure, formula, biblStruct, s], flavor=null, debugLabelingCollector=disabled</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p coords="1,143.56,414.48,324.74,8.64;1,143.87,425.39,324.26,8.64;1,143.87,436.30,324.26,8.64;1,143.87,447.21,325.51,8.64;1,143.87,458.12,324.27,8.64;1,143.87,469.02,324.26,8.64;1,143.87,479.93,324.62,8.64;1,143.87,490.84,325.92,8.64;1,143.87,501.75,324.26,8.64;1,143.87,512.66,325.51,8.64;1,143.87,523.57,324.44,8.64;1,143.87,534.48,324.26,8.64;1,143.87,545.39,324.27,8.64;1,143.87,556.30,324.27,8.64;1,143.87,567.21,122.40,8.64;1,119.82,597.96,1.27,5.24"><s coords="1,143.56,414.48,324.74,8.64;1,143.87,425.39,284.66,8.64">The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder.</s><s coords="1,433.01,425.39,35.12,8.64;1,143.87,436.30,324.26,8.64;1,143.87,447.21,48.83,8.64">The best performing models also connect the encoder and decoder through an attention mechanism.</s><s coords="1,198.77,447.21,270.61,8.64;1,143.87,458.12,324.27,8.64;1,143.87,469.02,32.93,8.64">We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.</s><s coords="1,182.93,469.02,285.20,8.64;1,143.87,479.93,324.62,8.64;1,143.87,490.84,71.51,8.64">Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train.</s><s coords="1,220.12,490.84,249.67,8.64;1,143.87,501.75,324.26,8.64;1,143.87,512.66,111.89,8.64">Our model achieves 28.4 BLEU on the WMT 2014 Englishto-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU.</s><s coords="1,258.04,512.66,211.34,8.64;1,143.87,523.57,324.44,8.64;1,143.87,534.48,324.26,8.64;1,143.87,545.39,124.34,8.64">On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature.</s><s coords="1,271.31,545.39,196.82,8.64;1,143.87,556.30,324.27,8.64;1,143.87,567.21,122.40,8.64;1,119.82,597.96,1.27,5.24">We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data.</s></p><p coords="1,121.10,597.96,2.55,5.24;1,124.14,600.02,379.86,7.77;1,108.00,609.98,396.00,7.77;1,108.00,619.94,396.00,7.77;1,108.00,629.91,396.31,7.77;1,108.00,639.87,396.00,7.77;1,108.00,649.83,396.00,7.77;1,108.00,659.79,396.00,7.77;1,108.00,669.76,396.00,7.77;1,108.00,679.72,46.30,7.77;1,120.21,688.61,1.72,5.24"><s coords="1,121.10,597.96,2.55,5.24;1,124.14,600.02,67.79,7.77">* Equal contribution.</s><s coords="1,194.72,600.02,85.16,7.77">Listing order is random.</s><s coords="1,282.68,600.02,221.32,7.77;1,108.00,609.98,109.13,7.77">Jakob proposed replacing RNNs with self-attention and started the effort to evaluate this idea.</s><s coords="1,219.91,609.98,284.09,7.77;1,108.00,619.94,195.47,7.77">Ashish, with Illia, designed and implemented the first Transformer models and has been crucially involved in every aspect of this work.</s><s coords="1,306.17,619.94,197.82,7.77;1,108.00,629.91,396.31,7.77;1,108.00,639.87,22.12,7.77">Noam proposed scaled dot-product attention, multi-head attention and the parameter-free position representation and became the other person involved in nearly every detail.</s><s coords="1,132.93,639.87,371.07,7.77;1,108.00,649.83,49.65,7.77">Niki designed, implemented, tuned and evaluated countless model variants in our original codebase and tensor2tensor.</s><s coords="1,160.43,649.83,343.57,7.77;1,108.00,659.79,130.77,7.77">Llion also experimented with novel model variants, was responsible for our initial codebase, and efficient inference and visualizations.</s><s coords="1,241.50,659.79,262.50,7.77;1,108.00,669.76,396.00,7.77;1,108.00,679.72,46.30,7.77;1,120.21,688.61,1.72,5.24">Lukasz and Aidan spent countless long days designing various parts of and implementing tensor2tensor, replacing our earlier codebase, greatly improving results and massively accelerating our research.</s></p><p coords="1,121.93,688.61,1.72,5.24;1,124.14,690.67,143.21,7.77;1,120.21,699.56,1.72,5.24"><s coords="1,121.93,688.61,1.72,5.24;1,124.14,690.67,143.21,7.77;1,120.21,699.56,1.72,5.24">† Work performed while at Google Brain.</s></p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<facsimile>
+		<surface n="1" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="2" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="3" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="4" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="5" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="6" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="7" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="8" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="9" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="10" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="11" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="12" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="13" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="14" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="15" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+	</facsimile>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1" coords="2,108.00,73.71,82.81,10.75">Introduction</head><p coords="2,108.00,100.16,212.89,8.64;2,342.98,100.16,78.67,8.64;2,438.77,100.16,65.23,8.64;2,108.00,111.07,396.00,8.64;2,108.00,121.98,305.94,8.64;2,453.52,121.98,50.48,8.64;2,108.00,132.89,396.17,8.64;2,108.00,143.80,50.90,8.64;2,206.42,143.80,3.94,8.64"><s coords="2,108.00,100.16,396.00,8.64;2,108.00,111.07,396.00,8.64;2,108.00,121.98,349.16,8.64">Recurrent neural networks, long short-term memory <ref type="bibr" target="#b12">[13]</ref> and gated recurrent <ref type="bibr" target="#b6">[7]</ref> neural networks in particular, have been firmly established as state of the art approaches in sequence modeling and transduction problems such as language modeling and machine translation <ref type="bibr" target="#b34">[35,</ref><ref type="bibr" target="#b1">2,</ref><ref type="bibr" target="#b4">5]</ref>.</s><s coords="2,461.67,121.98,42.33,8.64;2,108.00,132.89,396.17,8.64;2,108.00,143.80,102.37,8.64">Numerous efforts have since continued to push the boundaries of recurrent language models and encoder-decoder architectures <ref type="bibr" target="#b37">[38,</ref><ref type="bibr" target="#b23">24,</ref><ref type="bibr" target="#b14">15]</ref>.</s></p><p coords="2,108.00,160.19,396.00,8.64;2,108.00,171.09,396.00,8.64;2,108.00,181.68,396.35,9.65;2,108.00,192.91,396.17,8.64;2,108.00,203.82,396.00,8.64;2,108.00,214.73,314.79,8.64;2,443.73,214.73,60.27,8.64;2,108.00,225.64,50.71,8.64;2,176.60,225.64,327.40,8.64;2,108.00,236.55,222.52,8.64"><s coords="2,108.00,160.19,396.00,8.64;2,108.00,171.09,43.05,8.64">Recurrent models typically factor computation along the symbol positions of the input and output sequences.</s><s coords="2,154.15,171.09,349.85,8.64;2,108.00,181.68,333.24,9.65">Aligning the positions to steps in computation time, they generate a sequence of hidden states h t , as a function of the previous hidden state h t-1 and the input for position t.</s><s coords="2,444.32,182.00,60.03,8.64;2,108.00,192.91,396.17,8.64;2,108.00,203.82,289.45,8.64">This inherently sequential nature precludes parallelization within training examples, which becomes critical at longer sequence lengths, as memory constraints limit batching across examples.</s><s coords="2,400.54,203.82,103.46,8.64;2,108.00,214.73,396.00,8.64;2,108.00,225.64,323.95,8.64">Recent work has achieved significant improvements in computational efficiency through factorization tricks <ref type="bibr" target="#b20">[21]</ref> and conditional computation <ref type="bibr" target="#b31">[32]</ref>, while also improving model performance in case of the latter.</s><s coords="2,435.04,225.64,68.95,8.64;2,108.00,236.55,222.52,8.64">The fundamental constraint of sequential computation, however, remains.</s></p><p coords="2,107.64,252.94,398.01,8.64;2,108.00,263.85,396.00,8.64;2,108.00,274.76,114.21,8.64;2,249.40,274.76,88.39,8.64;2,355.29,274.76,148.71,8.64;2,108.00,285.66,195.79,8.64"><s coords="2,107.64,252.94,398.01,8.64;2,108.00,263.85,396.00,8.64;2,108.00,274.76,145.31,8.64">Attention mechanisms have become an integral part of compelling sequence modeling and transduction models in various tasks, allowing modeling of dependencies without regard to their distance in the input or output sequences <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b18">19]</ref>.</s><s coords="2,256.37,274.76,247.63,8.64;2,108.00,285.66,195.79,8.64">In all but a few cases <ref type="bibr" target="#b26">[27]</ref>, however, such attention mechanisms are used in conjunction with a recurrent network.</s></p><p coords="2,108.00,302.05,396.00,8.64;2,108.00,312.96,397.74,8.64;2,107.69,323.87,396.31,8.64;2,108.00,334.78,344.36,8.64"><s coords="2,108.00,302.05,396.00,8.64;2,108.00,312.96,397.74,8.64">In this work we propose the Transformer, a model architecture eschewing recurrence and instead relying entirely on an attention mechanism to draw global dependencies between input and output.</s><s coords="2,107.69,323.87,396.31,8.64;2,108.00,334.78,344.36,8.64">The Transformer allows for significantly more parallelization and can reach a new state of the art in translation quality after being trained for as little as twelve hours on eight P100 GPUs.</s></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2" coords="2,108.00,364.03,80.83,10.75">Background</head><p coords="2,107.69,390.47,396.31,8.64;2,123.12,401.38,38.69,8.64;2,182.94,401.38,52.93,8.64;2,248.65,401.38,255.36,8.64;2,108.00,412.29,397.24,8.64;2,108.00,423.20,396.00,8.64;2,108.00,434.11,396.00,8.64;2,108.00,445.02,263.71,8.64;2,390.20,445.02,113.79,8.64;2,108.00,455.93,396.00,8.64;2,108.00,466.84,396.00,8.64;2,108.00,477.75,96.57,8.64"><s coords="2,107.69,390.47,396.31,8.64;2,108.00,401.38,396.00,8.64;2,108.00,412.29,330.96,8.64">The goal of reducing sequential computation also forms the foundation of the Extended Neural GPU <ref type="bibr" target="#b15">[16]</ref>, ByteNet <ref type="bibr" target="#b17">[18]</ref> and ConvS2S <ref type="bibr" target="#b8">[9]</ref>, all of which use convolutional neural networks as basic building block, computing hidden representations in parallel for all input and output positions.</s><s coords="2,441.96,412.29,63.29,8.64;2,108.00,423.20,396.00,8.64;2,108.00,434.11,348.04,8.64">In these models, the number of operations required to relate signals from two arbitrary input or output positions grows in the distance between positions, linearly for ConvS2S and logarithmically for ByteNet.</s><s coords="2,459.17,434.11,44.83,8.64;2,108.00,445.02,286.06,8.64">This makes it more difficult to learn dependencies between distant positions <ref type="bibr" target="#b11">[12]</ref>.</s><s coords="2,398.90,445.02,105.09,8.64;2,108.00,455.93,396.00,8.64;2,108.00,466.84,396.00,8.64;2,108.00,477.75,96.57,8.64">In the Transformer this is reduced to a constant number of operations, albeit at the cost of reduced effective resolution due to averaging attention-weighted positions, an effect we counteract with Multi-Head Attention as described in section 3.2.</s></p><p coords="2,108.00,494.14,396.00,8.64;2,108.00,505.04,396.00,8.64;2,108.00,515.95,397.25,8.64;2,108.00,526.86,293.69,8.64;2,459.17,526.86,3.94,8.64"><s coords="2,108.00,494.14,396.00,8.64;2,108.00,505.04,299.73,8.64">Self-attention, sometimes called intra-attention is an attention mechanism relating different positions of a single sequence in order to compute a representation of the sequence.</s><s coords="2,410.90,505.04,93.09,8.64;2,108.00,515.95,397.25,8.64;2,108.00,526.86,355.12,8.64">Self-attention has been used successfully in a variety of tasks including reading comprehension, abstractive summarization, textual entailment and learning task-independent sentence representations <ref type="bibr" target="#b3">[4,</ref><ref type="bibr" target="#b26">27,</ref><ref type="bibr" target="#b27">28,</ref><ref type="bibr" target="#b21">22]</ref>.</s></p><p coords="2,108.00,543.25,397.65,8.64;2,108.00,554.16,396.00,8.64;2,108.00,565.07,98.51,8.64;2,224.27,565.07,3.82,8.64"><s coords="2,108.00,543.25,397.65,8.64;2,108.00,554.16,396.00,8.64;2,108.00,565.07,120.09,8.64">End-to-end memory networks are based on a recurrent attention mechanism instead of sequencealigned recurrence and have been shown to perform well on simple-language question answering and language modeling tasks <ref type="bibr" target="#b33">[34]</ref>.</s></p><p coords="2,107.69,581.46,396.31,8.64;2,108.00,592.37,397.66,8.64;2,108.00,603.28,396.00,8.64;2,108.00,614.18,241.84,8.64;2,386.37,614.18,14.39,8.64;2,413.82,614.18,3.53,8.64"><s coords="2,107.69,581.46,396.31,8.64;2,108.00,592.37,397.66,8.64;2,108.00,603.28,119.19,8.64">To the best of our knowledge, however, the Transformer is the first transduction model relying entirely on self-attention to compute representations of its input and output without using sequencealigned RNNs or convolution.</s><s coords="2,230.30,603.28,273.70,8.64;2,108.00,614.18,309.35,8.64">In the following sections, we will describe the Transformer, motivate self-attention and discuss its advantages over models such as <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b17">18]</ref> and <ref type="bibr" target="#b8">[9]</ref>.</s></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3" coords="2,108.00,643.43,118.09,10.75">Model Architecture</head><p coords="2,108.00,669.88,356.29,8.64;2,501.81,669.88,3.94,8.64;2,108.00,680.47,396.00,9.65;2,108.00,691.35,396.00,9.68;2,108.00,702.29,396.00,9.65;2,123.27,713.51,367.29,8.64;3,107.69,437.87,396.66,8.64;3,108.00,448.78,386.93,8.64;3,501.44,448.78,3.81,8.64;3,108.00,459.69,49.58,8.64"><s coords="2,108.00,669.88,397.74,8.64">Most competitive neural sequence transduction models have an encoder-decoder structure <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b1">2,</ref><ref type="bibr" target="#b34">35]</ref>.</s><s coords="2,108.00,680.47,396.00,9.65;2,108.00,691.35,195.09,9.68">Here, the encoder maps an input sequence of symbol representations (x 1 , ..., x n ) to a sequence of continuous representations z = (z 1 , ..., z n ).</s><s coords="2,309.77,691.35,194.23,8.99;2,108.00,702.29,226.08,9.65">Given z, the decoder then generates an output sequence (y 1 , ..., y m ) of symbols one element at a time.</s><s coords="2,337.37,702.61,166.63,8.64;2,108.00,713.51,382.56,8.64">At each step the model is auto-regressive <ref type="bibr" target="#b9">[10]</ref>, consuming the previously generated symbols as additional input when generating the next.</s><s coords="3,107.69,437.87,396.66,8.64;3,108.00,448.78,397.25,8.64;3,108.00,459.69,49.58,8.64">The Transformer follows this overall architecture using stacked self-attention and point-wise, fully connected layers for both the encoder and decoder, shown in the left and right halves of Figure <ref type="figure" target="#fig_0">1</ref>, respectively.</s></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1" coords="3,108.00,483.76,145.01,8.96">Encoder and Decoder Stacks</head><p coords="3,108.00,503.74,396.00,9.03;3,108.00,515.04,397.66,8.64;3,107.64,525.95,314.58,8.64;3,443.93,525.95,60.07,8.64;3,108.00,536.86,213.57,8.64;3,335.41,536.86,168.59,8.64;3,108.00,547.45,396.17,8.96;3,108.00,558.68,396.00,8.64;3,108.00,569.27,203.81,9.80"><s coords="3,108.00,503.74,311.94,9.03">Encoder: The encoder is composed of a stack of N = 6 identical layers.</s><s coords="3,425.12,504.13,78.88,8.64;3,108.00,515.04,43.83,8.64">Each layer has two sub-layers.</s><s coords="3,154.92,515.04,350.73,8.64;3,107.64,525.95,177.02,8.64">The first is a multi-head self-attention mechanism, and the second is a simple, positionwise fully connected feed-forward network.</s><s coords="3,287.77,525.95,216.23,8.64;3,108.00,536.86,230.98,8.64">We employ a residual connection <ref type="bibr" target="#b10">[11]</ref> around each of the two sub-layers, followed by layer normalization <ref type="bibr" target="#b0">[1]</ref>.</s><s coords="3,343.97,536.86,160.03,8.64;3,108.00,547.45,396.17,8.96;3,108.00,558.68,22.42,8.64">That is, the output of each sub-layer is LayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer itself.</s><s coords="3,133.51,558.68,370.49,8.64;3,108.00,569.27,203.81,9.80">To facilitate these residual connections, all sub-layers in the model, as well as the embedding layers, produce outputs of dimension d model = 512.</s></p><p coords="3,108.00,592.32,396.00,9.03;3,108.00,603.62,396.00,8.64;3,108.00,614.52,396.00,8.64;3,108.00,625.43,396.00,8.64;3,108.00,636.34,396.00,8.64;3,108.00,647.25,396.00,8.64;3,108.00,657.84,348.65,8.96"><s coords="3,108.00,592.32,309.27,9.03">Decoder: The decoder is also composed of a stack of N = 6 identical layers.</s><s coords="3,420.32,592.71,83.67,8.64;3,108.00,603.62,396.00,8.64;3,108.00,614.52,177.59,8.64">In addition to the two sub-layers in each encoder layer, the decoder inserts a third sub-layer, which performs multi-head attention over the output of the encoder stack.</s><s coords="3,288.60,614.52,215.40,8.64;3,108.00,625.43,257.60,8.64">Similar to the encoder, we employ residual connections around each of the sub-layers, followed by layer normalization.</s><s coords="3,368.80,625.43,135.19,8.64;3,108.00,636.34,373.00,8.64">We also modify the self-attention sub-layer in the decoder stack to prevent positions from attending to subsequent positions.</s><s coords="3,485.93,636.34,18.07,8.64;3,108.00,647.25,396.00,8.64;3,108.00,657.84,348.65,8.96">This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i.</s></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2" coords="3,108.00,682.24,62.81,8.96">Attention</head><p coords="3,107.64,702.61,397.61,8.64;3,107.64,713.51,396.36,8.64;4,108.00,318.25,396.00,8.64;4,108.00,329.16,135.51,8.64"><s coords="3,107.64,702.61,397.61,8.64;3,107.64,713.51,223.79,8.64">An attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors.</s><s coords="3,334.53,713.51,169.47,8.64;4,108.00,318.25,396.00,8.64;4,108.00,329.16,135.51,8.64">The output is computed as a weighted sum of the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.</s></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.1" coords="4,108.00,351.83,155.88,8.96">Scaled Dot-Product Attention</head><p coords="4,107.53,370.85,292.65,8.64;4,406.69,370.85,97.31,8.64;4,108.00,381.44,396.00,9.65;4,108.00,392.67,139.56,8.64;4,250.05,384.60,8.30,8.74;4,258.35,392.35,245.65,9.65;4,107.75,403.57,27.70,8.64"><s coords="4,107.53,370.85,306.49,8.64">We call our particular attention "Scaled Dot-Product Attention" (Figure <ref type="figure" target="#fig_1">2</ref>).</s><s coords="4,418.15,370.85,85.85,8.64;4,108.00,381.44,250.68,9.65">The input consists of queries and keys of dimension d k , and values of dimension d v .</s><s coords="4,361.77,381.76,142.23,8.64;4,108.00,392.67,139.56,8.64;4,250.05,384.60,8.30,8.74;4,258.35,392.35,245.65,9.65;4,107.75,403.57,27.70,8.64">We compute the dot products of the query with all keys, divide each by √ d k , and apply a softmax function to obtain the weights on the values.</s></p><p coords="4,108.00,419.96,396.17,8.64;4,108.00,430.55,396.00,8.96;4,108.00,441.78,96.86,8.64"><s coords="4,108.00,419.96,396.17,8.64;4,108.00,430.55,63.91,8.96">In practice, we compute the attention function on a set of queries simultaneously, packed together into a matrix Q.</s><s coords="4,175.00,430.55,275.94,8.96">The keys and values are also packed together into matrices K and V .</s><s coords="4,454.03,430.87,49.97,8.64;4,108.00,441.78,96.86,8.64">We compute the matrix of outputs as:</s></p><formula xml:id="formula_0" coords="4,219.97,465.65,284.70,25.41">Attention(Q, K, V ) = softmax( QK T √ d k )V<label>(1)</label></formula><p coords="4,107.69,500.59,284.90,8.64;4,405.68,500.59,99.97,8.64;4,108.00,511.50,396.17,8.64;4,108.00,522.41,8.37,8.64;4,125.60,520.21,3.97,6.12"><s coords="4,107.69,500.59,397.96,8.64;4,108.00,511.50,77.23,8.64">The two most commonly used attention functions are additive attention <ref type="bibr" target="#b1">[2]</ref>, and dot-product (multiplicative) attention.</s><s coords="4,188.34,511.50,315.83,8.64;4,108.00,522.41,8.37,8.64;4,125.60,520.21,3.97,6.12">Dot-product attention is identical to our algorithm, except for the scaling factor of 1</s></p><formula xml:id="formula_1" coords="4,120.06,522.41,18.76,12.72">√ d k .</formula><p coords="4,141.90,522.41,362.10,8.64;4,108.00,535.58,396.00,8.64;4,108.00,546.49,396.00,8.64;4,108.00,557.39,108.20,8.64"><s coords="4,141.90,522.41,362.10,8.64;4,108.00,535.58,86.36,8.64">Additive attention computes the compatibility function using a feed-forward network with a single hidden layer.</s><s coords="4,197.58,535.58,306.42,8.64;4,108.00,546.49,396.00,8.64;4,108.00,557.39,108.20,8.64">While the two are similar in theoretical complexity, dot-product attention is much faster and more space-efficient in practice, since it can be implemented using highly optimized matrix multiplication code.</s></p><p coords="4,107.53,573.46,396.47,9.65;4,108.00,584.37,237.81,9.65;4,359.59,584.69,144.41,8.64;4,108.00,595.28,396.00,9.65;4,108.00,606.51,102.78,8.64;4,217.26,606.51,219.78,8.64;4,446.27,604.31,3.97,6.12"><s coords="4,107.53,573.46,396.47,9.65;4,108.00,584.37,255.13,9.65">While for small values of d k the two mechanisms perform similarly, additive attention outperforms dot product attention without scaling for larger values of d k <ref type="bibr" target="#b2">[3]</ref>.</s><s coords="4,366.24,584.69,137.76,8.64;4,108.00,595.28,396.00,9.65;4,108.00,606.51,111.75,8.64">We suspect that for large values of d k , the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients<ref type="foot" target="#foot_0">foot_0</ref> .</s><s coords="4,222.84,606.51,214.21,8.64;4,446.27,604.31,3.97,6.12">To counteract this effect, we scale the dot products by 1</s></p><formula xml:id="formula_2" coords="4,440.73,606.51,18.73,12.72">√ d k .</formula></div>
+
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0" coords="3,210.01,405.82,191.98,8.64;3,196.56,72.00,218.88,322.42"><head>Figure 1 :</head><label>1</label><figDesc><div><p><s coords="3,210.01,405.82,191.98,8.64">Figure 1: The Transformer -model architecture.</s></p></div></figDesc><graphic coords="3,196.56,72.00,218.88,322.42" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0" coords="8,107.69,72.27,396.31,168.02"><head>Table 2 :</head><label>2</label><figDesc><div><p><s coords="8,142.90,72.27,361.10,8.64;8,108.00,83.18,375.51,8.64">The Transformer achieves better BLEU scores than previous state-of-the-art models on the English-to-German and English-to-French newstest2014 tests at a fraction of the training cost.</s></p></div></figDesc><table coords="8,136.67,98.98,338.65,141.31"><row><cell>Model</cell><cell cols="2">BLEU EN-DE EN-FR</cell><cell>Training Cost (FLOPs) EN-DE EN-FR</cell></row><row><cell>ByteNet [18]</cell><cell>23.75</cell><cell></cell><cell></cell></row><row><cell>Deep-Att + PosUnk [39]</cell><cell></cell><cell>39.2</cell><cell>1.0 • 10 20</cell></row><row><cell>GNMT + RL [38]</cell><cell>24.6</cell><cell>39.92</cell><cell>2.3 • 10 19 1.4 • 10 20</cell></row><row><cell>ConvS2S [9]</cell><cell>25.16</cell><cell>40.46</cell><cell>9.6 • 10 18 1.5 • 10 20</cell></row><row><cell>MoE [32]</cell><cell>26.03</cell><cell>40.56</cell><cell>2.0 • 10 19 1.2 • 10 20</cell></row><row><cell>Deep-Att + PosUnk Ensemble [39]</cell><cell></cell><cell>40.4</cell><cell>8.0 • 10 20</cell></row><row><cell>GNMT + RL Ensemble [38]</cell><cell>26.30</cell><cell>41.16</cell><cell>1.8 • 10 20 1.1 • 10 21</cell></row><row><cell>ConvS2S Ensemble [9]</cell><cell>26.36</cell><cell>41.29</cell><cell>7.7 • 10 19 1.2 • 10 21</cell></row><row><cell>Transformer (base model)</cell><cell>27.3</cell><cell>38.1</cell><cell>3.3 • 10 18</cell></row><row><cell>Transformer (big)</cell><cell>28.4</cell><cell>41.8</cell><cell>2.3 • 10 19</cell></row></table></figure>
+<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_0" coords="4,123.86,702.53,380.14,8.06;4,107.78,713.88,248.52,8.06;4,368.58,711.66,7.62,6.45;4,368.58,718.66,11.91,5.24;4,382.52,713.88,121.35,8.35"><p><s coords="4,123.86,702.53,380.14,8.06;4,107.78,713.88,135.16,8.06">To illustrate why the dot products get large, assume that the components of q and k are independent random variables with mean 0 and variance 1.</s><s coords="4,245.72,713.88,110.57,8.06;4,368.58,711.66,7.62,6.45;4,368.58,718.66,11.91,5.24;4,382.52,713.88,121.35,8.35">Then their dot product, q • k = d k i=1 qiki, has mean 0 and variance d k .</s></p></note>
+</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head coords="10,108.00,559.80,84.01,8.96">Acknowledgements</head><p coords="10,201.97,560.19,302.03,8.64;10,108.00,571.10,154.68,8.64"><s coords="10,201.97,560.19,302.03,8.64;10,108.00,571.10,154.68,8.64">We are grateful to <rs type="person">Nal Kalchbrenner</rs> and <rs type="person">Stephan Gouws</rs> for their fruitful comments, corrections and inspiration.</s></p></div>
+			</div>			<div type="references">
+<listBibl>
+<biblStruct coords="10,129.58,616.05,374.42,8.82;10,129.58,626.96,100.17,8.82" status="extracted" xml:id="b0">
+	<monogr>
+		<title/>
+		<author>
+			<persName><forename type="first">Jimmy</forename><surname>Lei Ba</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jamie</forename><surname>Ryan Kiros</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Geoffrey</forename><forename type="middle">E</forename><surname>Hinton</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1607.06450</idno>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">Layer normalization. arXiv preprint</note>
+	<note type="raw_reference">Jimmy Lei Ba, Jamie Ryan Kiros, and Geoffrey E Hinton. Layer normalization. arXiv preprint arXiv:1607.06450, 2016.</note>
+</biblStruct>
+<biblStruct coords="10,129.58,645.02,374.77,8.64;10,129.58,655.75,239.07,8.82" status="extracted" xml:id="b1">
+	<monogr>
+		<title level="m" type="main">Neural machine translation by jointly learning to align and translate</title>
+		<author>
+			<persName><forename type="first">Dzmitry</forename><surname>Bahdanau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kyunghyun</forename><surname>Cho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yoshua</forename><surname>Bengio</surname></persName>
+		</author>
+		<idno>CoRR, abs/1409.0473</idno>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">Dzmitry Bahdanau, Kyunghyun Cho, and Yoshua Bengio. Neural machine translation by jointly learning to align and translate. CoRR, abs/1409.0473, 2014.</note>
+</biblStruct>
+<biblStruct coords="10,129.58,673.81,374.43,8.64;10,129.58,684.54,257.32,8.82" status="extracted" xml:id="b2">
+	<monogr>
+		<title level="m" type="main">Massive exploration of neural machine translation architectures</title>
+		<author>
+			<persName><forename type="first">Denny</forename><surname>Britz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Anna</forename><surname>Goldie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Minh-Thang</forename><surname>Luong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Quoc</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Le</surname></persName>
+		</author>
+		<idno>CoRR, abs/1703.03906</idno>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">Denny Britz, Anna Goldie, Minh-Thang Luong, and Quoc V. Le. Massive exploration of neural machine translation architectures. CoRR, abs/1703.03906, 2017.</note>
+</biblStruct>
+</listBibl>
+</div>
+</back>
+</text>
+</TEI>

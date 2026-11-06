@@ -1,0 +1,17 @@
+apps/web/src/components/chat/MessageItem.tsx:75	compare	协调者
+apps/web/src/components/layout/CommandPalette.tsx:361	compare	线程
+apps/web/src/components/layout/CommandPalette.tsx:504	compare	文档
+apps/web/src/features/collab-kit/claim-label.ts:36	lookup:endsWith	》
+apps/web/src/features/collab-kit/conflict/ConflictPanel.tsx:80	compare	有人
+apps/web/src/features/docs/editors/latex/compile/issues.ts:43	lookup:startsWith	找不到参考文献
+apps/web/src/features/docs/editors/rich/word/docx-import.ts:148	compare	标题
+apps/web/src/features/docs/editors/slides/canvas/SlideCanvas.tsx:598	compare	标题
+apps/web/src/features/docs/editors/slides/canvas/SlideCanvas.tsx:599	compare	副标题
+apps/web/src/features/docs/editors/slides/canvas/SlideCanvas.tsx:600	compare	正文
+apps/web/src/features/docs/list/ActorAvatar.tsx:10	lookup:includes	协调者
+apps/web/src/features/docs/templates.ts:179	tagged	% 中文论文模板（请用 XeLaTeX 编译）\ndocumentclass[UTF8,zihao=-4]{ctexart}\n\n\usepackage{amsmath,amssymb}\n\usepackage{graphicx}\n\
+apps/web/src/features/reports/components/ReportBits.tsx:25	lookup:includes	协调者
+apps/web/src/features/research/components/WorkspaceActionEditor.tsx:143	compare	`输入${ordinal}`
+packages/shared/src/entities-collab.ts:183	compare	幻灯片
+packages/shared/src/entities-collab.ts:183	compare	文档
+packages/shared/src/entities-collab.ts:183	compare	表格

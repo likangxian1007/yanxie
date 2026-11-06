@@ -1,0 +1,205 @@
+/* 文献库：PDF 高亮框、裁图、引用标签。颜色全部来自主题变量（亮 / 暗主题自动切换）。 */
+
+.lib-pdf-page {
+  /* PDF 纸面始终是白底（与 LaTeX 预览一致） */
+  background: white;
+}
+
+/* PDF.js TextLayer 的定位规则，限定在文献阅读器内（pdfjs-dist / Apache-2.0）。 */
+.lib-pdf-text {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  text-align: initial;
+  line-height: 1;
+  letter-spacing: normal;
+  word-spacing: normal;
+  /* PDF.js 按普通字体度量定位，不能继承应用正文的字形替换与大小写规则。 */
+  font-feature-settings: normal;
+  font-kerning: none;
+  font-variant: normal;
+  text-transform: none;
+  text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  --min-font-size: 1;
+  --scale-round-x: 1px;
+  --scale-round-y: 1px;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+.lib-pdf-text :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  line-height: 1;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.lib-pdf-text > :not(.markedContent),
+.lib-pdf-text .markedContent span:not(.markedContent) {
+  --font-height: 0;
+  --scale-x: 1;
+  --rotate: 0deg;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+.lib-pdf-text .markedContent {
+  display: contents;
+}
+.lib-pdf-text[data-main-rotation='90'] {
+  transform: rotate(90deg) translateY(-100%);
+}
+.lib-pdf-text[data-main-rotation='180'] {
+  transform: rotate(180deg) translate(-100%, -100%);
+}
+.lib-pdf-text[data-main-rotation='270'] {
+  transform: rotate(270deg) translateX(-100%);
+}
+.lib-pdf-text ::selection {
+  background: color-mix(in oklab, var(--accent) 35%, transparent);
+  color: transparent;
+}
+.lib-pdf-text br::selection {
+  background: transparent;
+}
+
+.lib-mark {
+  mix-blend-mode: multiply;
+}
+[data-theme='dark'] .lib-mark {
+  mix-blend-mode: normal;
+}
+.lib-mark-select {
+  background: color-mix(in oklab, var(--accent) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
+.lib-annotation-mark[data-color='yellow'] {
+  --annotation-color: var(--warning);
+}
+.lib-annotation-mark[data-color='green'] {
+  --annotation-color: var(--success);
+}
+.lib-annotation-mark[data-color='blue'] {
+  --annotation-color: var(--palette-2);
+}
+.lib-annotation-mark[data-color='pink'] {
+  --annotation-color: var(--palette-6);
+}
+.lib-annotation-layer {
+  mix-blend-mode: multiply;
+}
+.lib-annotation-fills {
+  opacity: 0.22;
+}
+.lib-annotation-highlight {
+  fill: var(--annotation-color);
+}
+.lib-annotation-comment,
+.lib-annotation-active {
+  fill: none;
+  stroke: var(--annotation-color);
+  stroke-width: 1;
+}
+.lib-annotation-active {
+  stroke-width: 2;
+  stroke-dasharray: 4 2;
+}
+.lib-mark-flash {
+  background: color-mix(in oklab, var(--warning) 34%, transparent);
+  box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--warning) 70%, transparent);
+  animation: lib-mark-flash 2.4s var(--ease-out) both;
+}
+@keyframes lib-mark-flash {
+  0% {
+    opacity: 0;
+  }
+  8%,
+  22% {
+    opacity: 1;
+  }
+  32% {
+    opacity: 0.35;
+  }
+  44%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.55;
+  }
+}
+
+.lib-crop {
+  background: white;
+}
+
+/* 引用标签：[p.5 ¶3] */
+.lib-cite {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 1px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 0.78em;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  vertical-align: 0.08em;
+  white-space: nowrap;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  cursor: pointer;
+  transition: background-color 120ms var(--ease-out);
+}
+.lib-cite:hover {
+  background: color-mix(in oklab, var(--accent) 22%, transparent);
+}
+.lib-cite:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+.lib-cite[data-missing='true'] {
+  color: var(--fg-muted);
+  background: var(--muted);
+  cursor: default;
+}
+
+.lib-katex .katex-display {
+  margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0 4px;
+  /* 窄面板里长公式能看出来可以横向滚动，而不是像被截断 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+/* 面板里的行间公式比 KaTeX 默认（1.21em）小一号，少滚动 */
+.lib-katex .katex-display > .katex {
+  font-size: 1.05em;
+}
+
+.lib-para-active {
+  box-shadow: inset 2px 0 0 var(--accent);
+  background: color-mix(in oklab, var(--accent) 6%, transparent);
+}
+
+/* 阅读器保留原 DOM；全屏时解除工作区隔离，才能覆盖外层侧栏。 */
+.isolate:has([data-reader-fullscreen='true']) {
+  isolation: auto;
+}
+
+/* 入场动画的 transform 不能成为全屏 fixed 容器的定位祖先。 */
+#main-content > div:has([data-reader-fullscreen='true']) {
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lib-mark-flash {
+    animation: none;
+  }
+}

@@ -1,0 +1,9 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 11 默认不跑依赖的构建脚本；只放行确实需要的（esbuild 由 tsx/tsup/drizzle-kit 引入）
+allowBuilds:
+  esbuild: true
+  # tesseract.js 的 postinstall 只是赞助提示，不需要运行；显式拒绝，避免 pnpm 11 报 ERR_PNPM_IGNORED_BUILDS
+  tesseract.js: false

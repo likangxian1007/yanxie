@@ -1,0 +1,1 @@
+export { SlidesEditor } from './SlidesEditor';

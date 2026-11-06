@@ -1,0 +1,345 @@
+/* ==========================================================================
+   研协 Design Tokens — 唯一的颜色/字体/尺寸/动效来源
+   规范说明见仓库根目录 STYLE.md。组件里禁止写死色值，一律用 Tailwind 语义类
+   （bg-surface、text-fg-muted、border-line …）或 var(--*)。
+   主题：<html data-theme="light|dark">；未设置时跟随系统。
+   ========================================================================== */
+
+:root {
+  /* ---- 中性色（暖白纸面） ---- */
+  --canvas: #f8f8f6; /* 页面底色 */
+  --surface: #ffffff; /* 卡片、面板、输入框 */
+  --elevated: #ffffff; /* 浮层（菜单、对话框），靠阴影区分 */
+  --subtle: #f2f2ef; /* 侧边栏底、hover */
+  --muted: #eaeae6; /* 按下、选中 */
+  --overlay: rgb(12 12 14 / 0.4);
+
+  --line: #e6e5e0; /* 发丝线、卡片描边 */
+  --line-strong: #d4d3cd; /* 输入框描边、分隔强调 */
+
+  --fg: #18181b; /* 正文 */
+  /* fg-muted / fg-subtle 在 canvas、surface、subtle、muted 上都 ≥ 4.5:1（WCAG AA 正文） */
+  --fg-muted: #4f4f59; /* 次要说明：6.7–8.1:1 */
+  --fg-subtle: #666670; /* 时间戳、占位符：4.7–5.7:1 */
+  --fg-inverse: #ffffff;
+
+  /* ---- 品牌主色：鸢尾蓝紫 ---- */
+  --accent: #5b5bd6;
+  --accent-hover: #4e4ec6;
+  --accent-fg: #ffffff;
+  --accent-soft: #eeeefc;
+  --accent-text: #4747b5;
+  --ring: rgb(91 91 214 / 0.32);
+  /*
+   * 实心按钮、计数徽标这类「色块 + accent-fg 白字」的底色（WCAG ≥ 4.5:1）。
+   * 浅色和 accent 相同（白字 5.4:1）；暗色的 accent 偏亮，适合当文字和描边，作底色时白字只有 3.6:1，所以单独一档。
+   */
+  --accent-solid: #5b5bd6;
+  --accent-solid-hover: #4e4ec6; /* 白字 6.5:1 */
+
+  /* ---- Agent 身份色（紫 → 蓝 → 青渐变，只用于 AI 相关元素） ---- */
+  --agent: #7c5cfa;
+  --agent-soft: #f2eeff;
+  --agent-text: #6440e6;
+  --agent-gradient: linear-gradient(135deg, #8b5cf6 0%, #5b5bd6 48%, #22b8c7 100%);
+
+  /* ---- 语义状态 ---- */
+  /* success 作文字：canvas 4.9:1、success-soft 4.6:1；实心 bg-success 上的文字用 success-fg（5.2:1） */
+  --success: #1d7c50;
+  --success-fg: #ffffff;
+  --success-soft: #e6f5ed;
+  /* warning 是琥珀色，作色块、高亮底；作文字（text-warning）用更深的 warning-text：
+     canvas 5.6、surface 5.9、subtle 5.3、muted 4.9、warning-soft 5.4:1 */
+  --warning: #b7791f;
+  --warning-text: #8a5a00;
+  --warning-soft: #fbf3e2;
+  --danger: #bf3036;
+  --danger-soft: #fdeceb;
+  /* 危险实心按钮 / 徽标底（白字）：4.6:1，hover 加深到 5.5:1 */
+  --danger-solid: #d23f3f;
+  --danger-solid-hover: #bf3838;
+  --info: #175fac;
+  --info-soft: #e7f0fc;
+
+  /* ---- 头像 / 项目 / 标签色板（8 色，两套主题通用） ---- */
+  --palette-0: #6e56cf; /* 紫 */
+  --palette-1: #3e63dd; /* 靛 */
+  --palette-2: #0090ff; /* 蓝 */
+  --palette-3: #12a594; /* 青 */
+  --palette-4: #30a46c; /* 绿 */
+  --palette-5: #f76b15; /* 橙 */
+  --palette-6: #e54666; /* 玫红 */
+  --palette-7: #7c7b88; /* 石板灰 */
+
+  /* ---- 阴影（描边 + 柔和投影，层级越高越扩散） ---- */
+  --shadow-xs: 0 1px 2px rgb(16 16 20 / 0.04);
+  --shadow-sm: 0 1px 3px rgb(16 16 20 / 0.06), 0 1px 2px -1px rgb(16 16 20 / 0.04);
+  --shadow-md: 0 6px 16px -4px rgb(16 16 20 / 0.1), 0 2px 4px -2px rgb(16 16 20 / 0.05);
+  --shadow-lg: 0 18px 44px -12px rgb(16 16 20 / 0.2), 0 6px 14px -6px rgb(16 16 20 / 0.08);
+  --shadow-glow: var(--shadow-sm);
+
+  /* ---- 动效 ---- */
+  --dur-instant: 80ms; /* 按压反馈 */
+  --dur-fast: 140ms; /* 颜色、hover */
+  --dur-base: 200ms; /* 浮层、tooltip、小位移 */
+  --dur-slow: 320ms; /* 抽屉、面板、对话框 */
+  --dur-slower: 480ms; /* 页面级入场、强调动画 */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* 入场：快起慢收 */
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0); /* 离场 */
+  --ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1); /* 徽标、计数轻弹 */
+
+  /* ---- 布局尺寸 ---- */
+  --sidebar-w: 224px;
+  --sidebar-w-collapsed: 60px;
+  --topbar-h: 52px;
+  --panel-w: 400px;
+  --feed-max: 800px;
+  --doc-max: 820px;
+
+  color-scheme: light;
+}
+
+/* ---- 暗色主题：近黑石墨，层级靠亮度递增 ---- */
+:root[data-theme='dark'] {
+  --canvas: #0c0c0e;
+  --surface: #141417;
+  --elevated: #1b1b1f;
+  --subtle: #18181c;
+  --muted: #232328;
+  --overlay: rgb(0 0 0 / 0.6);
+
+  --line: #26262c;
+  --line-strong: #34343b;
+
+  --fg: #ededf0;
+  --fg-muted: #a3a3ad;
+  --fg-subtle: #8b8b96; /* 在 canvas…muted 上 4.6–5.8:1 */
+  --fg-inverse: #111113;
+
+  --accent: #7b7bea;
+  --accent-hover: #8e8ef0;
+  --accent-fg: #ffffff;
+  --accent-soft: #1d1d38;
+  --accent-text: #a9a9f6;
+  --ring: rgb(123 123 234 / 0.4);
+  /* 实心底 + 白字：5.4:1（hover 提亮后 4.7:1）；在 canvas 上仍有 3.6:1 的轮廓 */
+  --accent-solid: #5b5bd6;
+  --accent-solid-hover: #6464e0;
+
+  --agent: #9d85ff;
+  --agent-soft: #211a3b;
+  --agent-text: #b9a8ff;
+  --agent-gradient: linear-gradient(135deg, #a78bfa 0%, #7b7bea 48%, #2fd0de 100%);
+
+  --info: #91b8ff;
+  --info-soft: #21365b;
+  --success: #3dd68c;
+  /* 亮绿实心底上用深色字：10.4:1 */
+  --success-fg: #0c0c0e;
+  --success-soft: #10271c;
+  --warning: #f2b54a;
+  --warning-text: #f2b54a; /* canvas 10.7、warning-soft 9.0:1 */
+  --warning-soft: #2a2112;
+  --danger: #f2555a;
+  --danger-soft: #2e1517;
+  /* 危险实心按钮 / 徽标底（白字）：5.0:1，hover 提亮后 4.8:1 */
+  --danger-solid: #c93a40;
+  --danger-solid-hover: #cf3c42;
+
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 8px 20px -6px rgb(0 0 0 / 0.55), 0 2px 4px -2px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 24px 56px -12px rgb(0 0 0 / 0.7), 0 8px 16px -8px rgb(0 0 0 / 0.45);
+  --shadow-glow: var(--shadow-sm);
+
+  color-scheme: dark;
+}
+
+/* 三维外观：配色独立于材质和明暗。 */
+:root,
+:root[data-palette='fudan'],
+.appearance-fudan[data-theme='light'] {
+  --canvas: #fafafa;
+  --surface: #ffffff;
+  --elevated: #ffffff;
+  --subtle: #f1f1f2;
+  --muted: #e6e6e8;
+  --line: #e3e3e5;
+  --line-strong: #c8c8cd;
+  --fg: #202124;
+  --fg-muted: #575961;
+  --fg-subtle: #656770;
+  --accent: #0e419c;
+  --accent-hover: #0b3583;
+  --accent-soft: #e6eefb;
+  --accent-text: #0e419c;
+  --accent-solid: #0e419c;
+  --accent-solid-hover: #0b3583;
+  --agent: #32649d;
+  --agent-soft: #eaf1f8;
+  --agent-text: #27547f;
+  --ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --agent-gradient: linear-gradient(135deg, var(--accent-solid), var(--agent));
+  --chrome: var(--subtle);
+  --chrome-elevated: var(--elevated);
+  --chrome-highlight: color-mix(in srgb, var(--surface) 82%, transparent);
+  --brand-detail: #cc1a1a;
+}
+:root[data-palette='fudan'][data-theme='dark'],
+.appearance-fudan[data-theme='dark'] {
+  --canvas: #161719;
+  --surface: #1c1d20;
+  --elevated: #25262a;
+  --subtle: #202124;
+  --muted: #303136;
+  --line: #34353b;
+  --line-strong: #4a4c54;
+  --fg: #eeeff1;
+  --fg-muted: #bfc1c8;
+  --fg-subtle: #a8abb5;
+  --accent: #91b8ff;
+  --accent-hover: #b0cbff;
+  --accent-soft: #21365b;
+  --accent-text: #b1cdff;
+  --accent-solid: #2055ad;
+  --accent-solid-hover: #2b62be;
+  --agent: #9bbddd;
+  --agent-soft: #203448;
+  --agent-text: #b5d0eb;
+  --ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --agent-gradient: linear-gradient(135deg, var(--accent-solid), var(--agent));
+  --chrome: var(--subtle);
+  --chrome-elevated: var(--elevated);
+  --chrome-highlight: color-mix(in srgb, var(--surface) 82%, transparent);
+  --brand-detail: #cc1a1a;
+}
+:root[data-palette='graphite']:not([data-theme='dark']),
+.appearance-graphite[data-theme='light'] {
+  --canvas: #f1f2f4;
+  --surface: #ffffff;
+  --elevated: #ffffff;
+  --subtle: #e9ebef;
+  --muted: #dee1e7;
+  --line: #d9dde3;
+  --line-strong: #bec5cf;
+  --fg: #242a33;
+  --fg-muted: #505b69;
+  --fg-subtle: #586475;
+  --accent: #44566f;
+  --accent-hover: #34445b;
+  --accent-soft: #e6ebf1;
+  --accent-text: #34445b;
+  --accent-solid: #44566f;
+  --accent-solid-hover: #34445b;
+  --agent: #536781;
+  --agent-soft: #e9eef4;
+  --agent-text: #42546d;
+  --ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --agent-gradient: linear-gradient(135deg, var(--accent-solid), var(--agent));
+  --chrome: var(--subtle);
+  --chrome-elevated: var(--elevated);
+  --chrome-highlight: color-mix(in srgb, var(--surface) 82%, transparent);
+  --brand-detail: #cc1a1a;
+}
+:root[data-palette='graphite'][data-theme='dark'],
+.appearance-graphite[data-theme='dark'] {
+  --canvas: #14161a;
+  --surface: #1c1f25;
+  --elevated: #282d35;
+  --subtle: #22262e;
+  --muted: #303641;
+  --line: #343b46;
+  --line-strong: #4a5564;
+  --fg: #edf0f5;
+  --fg-muted: #bbc3cf;
+  --fg-subtle: #a5afbd;
+  --accent: #b6c7df;
+  --accent-hover: #d0ddef;
+  --accent-soft: #303e51;
+  --accent-text: #c9d7eb;
+  --accent-solid: #4c6485;
+  --accent-solid-hover: #566f91;
+  --agent: #b0c4da;
+  --agent-soft: #2c3949;
+  --agent-text: #c3d2e5;
+  --ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --agent-gradient: linear-gradient(135deg, var(--accent-solid), var(--agent));
+  --chrome: var(--subtle);
+  --chrome-elevated: var(--elevated);
+  --chrome-highlight: color-mix(in srgb, var(--surface) 82%, transparent);
+  --brand-detail: #cc1a1a;
+}
+:root[data-palette='paper']:not([data-theme='dark']),
+.appearance-paper[data-theme='light'] {
+  --canvas: #f5f2eb;
+  --surface: #fffdf8;
+  --elevated: #fffefb;
+  --subtle: #efebe2;
+  --muted: #e6dfd2;
+  --line: #e0d8ca;
+  --line-strong: #cbbda7;
+  --fg: #302b25;
+  --fg-muted: #665b4c;
+  --fg-subtle: #6b6051;
+  --accent: #80542d;
+  --accent-hover: #684120;
+  --accent-soft: #f0e5d6;
+  --accent-text: #754a27;
+  --accent-solid: #80542d;
+  --accent-solid-hover: #684120;
+  --agent: #806c4b;
+  --agent-soft: #f1eada;
+  --agent-text: #6d593b;
+  --ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --agent-gradient: linear-gradient(135deg, var(--accent-solid), var(--agent));
+  --chrome: var(--subtle);
+  --chrome-elevated: var(--elevated);
+  --chrome-highlight: color-mix(in srgb, var(--surface) 82%, transparent);
+  --brand-detail: #cc1a1a;
+}
+:root[data-palette='paper'][data-theme='dark'],
+.appearance-paper[data-theme='dark'] {
+  --canvas: #1c1915;
+  --surface: #25211c;
+  --elevated: #302b24;
+  --subtle: #2a251f;
+  --muted: #393127;
+  --line: #40382d;
+  --line-strong: #5b4e3d;
+  --fg: #f3eee5;
+  --fg-muted: #cec1ae;
+  --fg-subtle: #b9aa96;
+  --accent: #e1b583;
+  --accent-hover: #edc89e;
+  --accent-soft: #463421;
+  --accent-text: #ecc59a;
+  --accent-solid: #81572f;
+  --accent-solid-hover: #956435;
+  --agent: #d5bd95;
+  --agent-soft: #3b3325;
+  --agent-text: #e0cbaa;
+  --ring: color-mix(in srgb, var(--accent) 28%, transparent);
+  --agent-gradient: linear-gradient(135deg, var(--accent-solid), var(--agent));
+  --chrome: var(--subtle);
+  --chrome-elevated: var(--elevated);
+  --chrome-highlight: color-mix(in srgb, var(--surface) 82%, transparent);
+  --brand-detail: #cc1a1a;
+}
+
+/* 先实色回退；仅在支持 blur 时启用半透明导航与浮层。 */
+:root {
+  --chrome-blur: none;
+}
+@supports (backdrop-filter: blur(20px)) {
+  :root[data-material='glass'] {
+    --chrome: color-mix(in srgb, var(--subtle) 78%, transparent);
+    --chrome-elevated: color-mix(in srgb, var(--elevated) 90%, transparent);
+    --chrome-blur: blur(22px) saturate(115%);
+  }
+}
+:root[data-material='solid'] {
+  --chrome: var(--subtle);
+  --chrome-elevated: var(--elevated);
+  --chrome-blur: none;
+}

@@ -1,0 +1,427 @@
+/*
+ * Notebook 样式：版式对照 JupyterLab 4（In/Out 提示符列、选中蓝条、编辑态描边、输出区等宽字体），
+ * 颜色走全站 token，亮 / 暗主题自动切换。
+ */
+.nb-root {
+  --nb-prompt-w: 76px;
+  --nb-select: var(--accent);
+  --nb-hl-keyword: #008000;
+  --nb-hl-string: #ba2121;
+  --nb-hl-number: #080;
+  --nb-hl-comment: #408080;
+  --nb-hl-def: #0000ff;
+  --nb-hl-builtin: #008000;
+  --nb-hl-operator: #aa22ff;
+  --nb-hl-meta: #aa22ff;
+  --nb-ansi-black: #3e424d;
+  --nb-ansi-red: #e75c58;
+  --nb-ansi-green: #00a250;
+  --nb-ansi-yellow: #b27d12;
+  --nb-ansi-blue: #208ffb;
+  --nb-ansi-magenta: #d160c4;
+  --nb-ansi-cyan: #60c6c8;
+  --nb-ansi-white: #c5c1b4;
+  --nb-input-bg: color-mix(in oklab, var(--subtle) 70%, var(--surface));
+  --nb-mono:
+    ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+}
+:root.dark .nb-root,
+[data-theme='dark'] .nb-root {
+  --nb-hl-keyword: #c678dd;
+  --nb-hl-string: #98c379;
+  --nb-hl-number: #d19a66;
+  --nb-hl-comment: #7f848e;
+  --nb-hl-def: #61afef;
+  --nb-hl-builtin: #56b6c2;
+  --nb-hl-operator: #c678dd;
+  --nb-hl-meta: #e5c07b;
+  --nb-ansi-black: #7f848e;
+  --nb-ansi-red: #ff7b72;
+  --nb-ansi-green: #7ee787;
+  --nb-ansi-yellow: #e3b341;
+  --nb-ansi-blue: #79c0ff;
+  --nb-ansi-magenta: #d2a8ff;
+  --nb-ansi-cyan: #76e3ea;
+  --nb-ansi-white: #e6edf3;
+}
+
+/* ---- 工具栏 ---- */
+.nb-menu-btn {
+  border-radius: 6px;
+  padding: 2px 8px;
+  color: var(--fg-muted);
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+.nb-menu-btn:hover,
+.nb-menu-btn[aria-expanded='true'] {
+  background: var(--subtle);
+  color: var(--fg);
+}
+.nb-type-select {
+  height: 26px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--fg);
+  padding: 0 6px;
+  font-size: 12.5px;
+}
+
+/* ---- 单元格 ---- */
+.nb-cell {
+  position: relative;
+  padding-left: 0;
+}
+.nb-cell::before {
+  /* 选中时左侧蓝色竖条（JupyterLab 的 jp-Collapser 区域） */
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 4px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+.nb-cell.nb-selected {
+  background: color-mix(in oklab, var(--accent-soft) 45%, transparent);
+}
+.nb-cell.nb-active::before {
+  background: var(--nb-select);
+}
+.nb-cell.nb-editing::before {
+  background: var(--nb-select);
+}
+.nb-cell.nb-running::before {
+  background: var(--nb-select);
+  animation: nb-pulse 1.2s var(--ease-standard) infinite;
+}
+@keyframes nb-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-cell.nb-running::before {
+    animation: none;
+  }
+}
+
+.nb-collapser {
+  width: 10px;
+  align-self: stretch;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.nb-prompt {
+  flex-shrink: 0;
+  width: var(--nb-prompt-w);
+  padding: 7px 6px 0 0;
+  text-align: right;
+  font-family: var(--nb-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--fg-subtle);
+  user-select: none;
+  position: relative;
+}
+.nb-in-prompt {
+  color: color-mix(in oklab, var(--accent-text) 80%, var(--fg-subtle));
+}
+.nb-out-prompt {
+  color: color-mix(in oklab, var(--danger) 70%, var(--fg-subtle));
+  padding-top: 2px;
+}
+.nb-run-btn {
+  position: absolute;
+  left: 2px;
+  top: 6px;
+  display: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--accent-text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.nb-cell:hover .nb-run-btn,
+.nb-cell.nb-active .nb-run-btn {
+  display: grid;
+}
+.nb-run-btn:hover {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+
+.nb-input {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--nb-input-bg);
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.nb-editing .nb-input {
+  border-color: var(--nb-select);
+  box-shadow: 0 0 0 1px var(--nb-select);
+  background: var(--surface);
+}
+.nb-raw {
+  background: transparent;
+}
+
+.nb-hidden-src {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--fg-subtle);
+  background: var(--subtle);
+}
+
+/* ---- 输出 ---- */
+.nb-stream {
+  margin: 0;
+  padding: 2px 0;
+  font-family: var(--nb-mono);
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--fg);
+  max-height: 60vh;
+  overflow: auto;
+}
+.nb-stderr {
+  background: color-mix(in oklab, var(--danger-soft) 70%, transparent);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.nb-error {
+  background: color-mix(in oklab, var(--danger-soft) 70%, transparent);
+  padding: 6px 8px;
+  border-radius: 4px;
+  max-height: none;
+}
+.nb-image {
+  /* 输出区是纵向 flex：不设 align-self 会被 stretch 拉到整列宽（低分辨率图放大发糊） */
+  display: block;
+  align-self: flex-start;
+  flex: none;
+  max-width: 100%;
+  height: auto;
+  margin: 2px 0;
+}
+img.nb-image {
+  box-sizing: content-box;
+}
+img.nb-image.nb-image-full {
+  max-width: none;
+}
+img.nb-image.nb-zoomable {
+  cursor: zoom-in;
+}
+img.nb-image.nb-zoomable.nb-image-full {
+  cursor: zoom-out;
+}
+.nb-svg {
+  align-self: stretch;
+}
+:root.dark .nb-image:not(.nb-svg),
+[data-theme='dark'] .nb-image:not(.nb-svg) {
+  /* matplotlib 默认白底：暗色主题下给个圆角白底卡片，图不会被反色。
+     padding 加在图外（content-box），图本身仍是原始像素 */
+  background: #fff;
+  border-radius: 4px;
+  padding: 4px;
+  max-width: calc(100% - 8px);
+}
+:root.dark .nb-image.nb-image-full:not(.nb-svg),
+[data-theme='dark'] .nb-image.nb-image-full:not(.nb-svg) {
+  max-width: none;
+}
+.nb-svg svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* pandas DataFrame（JupyterLab 的 rendered_html 表格样式） */
+.nb-html {
+  font-size: 12.5px;
+  overflow-x: auto;
+}
+.nb-html table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: none;
+  font-variant-numeric: tabular-nums;
+  margin: 4px 0;
+}
+.nb-html thead {
+  border-bottom: 1px solid var(--line-strong);
+  vertical-align: bottom;
+}
+.nb-html th,
+.nb-html td {
+  padding: 4px 10px;
+  text-align: right;
+  vertical-align: middle;
+  white-space: nowrap;
+  border: none;
+}
+.nb-html th {
+  font-weight: 600;
+}
+.nb-html tbody tr:nth-child(odd) {
+  background: var(--subtle);
+}
+.nb-html tbody tr:hover {
+  background: var(--accent-soft);
+}
+.nb-html .dataframe caption {
+  color: var(--fg-subtle);
+}
+
+/* ---- Markdown ---- */
+.nb-markdown {
+  padding: 6px 8px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+.nb-markdown > :first-child {
+  margin-top: 0;
+}
+.nb-markdown > :last-child {
+  margin-bottom: 0;
+}
+.nb-markdown h1 {
+  font-size: 1.85em;
+  font-weight: 650;
+  margin: 0.6em 0 0.4em;
+  letter-spacing: -0.01em;
+}
+.nb-markdown h2 {
+  font-size: 1.45em;
+  font-weight: 650;
+  margin: 0.8em 0 0.4em;
+}
+.nb-markdown h3 {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+}
+.nb-markdown h4,
+.nb-markdown h5,
+.nb-markdown h6 {
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+}
+.nb-markdown p,
+.nb-markdown ul,
+.nb-markdown ol,
+.nb-markdown blockquote,
+.nb-markdown pre,
+.nb-markdown table {
+  margin: 0.5em 0;
+}
+.nb-markdown ul {
+  list-style: disc;
+  padding-left: 1.5em;
+}
+.nb-markdown ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+}
+.nb-markdown a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.nb-markdown code {
+  font-family: var(--nb-mono);
+  font-size: 0.88em;
+  background: var(--subtle);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+.nb-markdown pre {
+  background: var(--nb-input-bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 8px 10px;
+  overflow-x: auto;
+}
+.nb-markdown pre code {
+  background: none;
+  padding: 0;
+}
+.nb-markdown blockquote {
+  border-left: 3px solid var(--line-strong);
+  padding-left: 0.9em;
+  color: var(--fg-muted);
+}
+.nb-markdown table {
+  border-collapse: collapse;
+}
+.nb-markdown th,
+.nb-markdown td {
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+}
+.nb-markdown img {
+  max-width: 100%;
+}
+.nb-markdown hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 1em 0;
+}
+.nb-markdown .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0;
+}
+.nb-rendered {
+  min-height: 1.6em;
+}
+
+/* ---- 窄屏（手机）：提示符缩到上方一行，内容占满宽度 ---- */
+@media (max-width: 640px) {
+  .nb-root {
+    --nb-prompt-w: 0px;
+  }
+  /* 提示符单独占一行放在内容上方（In 和 Out 各在自己那一块里，不再叠在单元格顶上互相盖住） */
+  .nb-row {
+    flex-wrap: wrap;
+  }
+  .nb-prompt {
+    position: static;
+    order: -1;
+    flex: 0 0 100%;
+    width: auto;
+    padding: 0 0 1px 10px;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: left;
+    background: none;
+  }
+  .nb-prompt:empty {
+    display: none;
+  }
+  .nb-run-btn {
+    display: none !important;
+  }
+  .nb-stream,
+  .nb-html {
+    font-size: 12px;
+  }
+}
