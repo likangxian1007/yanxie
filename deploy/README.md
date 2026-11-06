@@ -26,9 +26,11 @@
 ## 第一次
 
 ```bash
-# root 登录服务器，把 deploy/bootstrap-server.sh 拷上去；REPO_URL 填你自己的仓库（fork 或镜像）
-REPO_URL=https://github.com/<your-org>/yanxie.git PUBLIC_PORT=80 APP_PORT=8787 bash bootstrap-server.sh
-# 端口被占时换成别的，比如 PUBLIC_PORT=8088 APP_PORT=18787
+# root 登录服务器，下载初始化脚本；先把域名 A 记录指向这台服务器
+curl -fsSLO https://raw.githubusercontent.com/likangxian1007/yanxie/main/deploy/bootstrap-server.sh
+DOMAIN=lab.example.com bash bootstrap-server.sh
+# 默认克隆公开仓库；用自己的 fork 时加 REPO_URL=https://github.com/<your-org>/yanxie.git
+# 暂时没有域名：去掉 DOMAIN，按 http://服务器IP 访问；端口被占时加 PUBLIC_PORT=8088 APP_PORT=18787
 # 私有仓库：REPO_URL 用 SSH 地址，并先为 root 配好对该仓库有只读权限的 SSH key（如 GitHub Deploy key）
 nano /opt/yanxie/.env          # 填 LLM_API_KEY（DeepSeek）
 bash /opt/yanxie/tools/deploy/deploy.sh
@@ -82,7 +84,7 @@ tail -f /var/log/nginx/srh.error.log
 
 ## 绑定域名
 
-nginx：在 `nginx/srh.conf.template` 旁边加一个带 `server_name 域名;` 的 server 块（经 Cloudflare 时可只监听 80，由 Cloudflare 提供 HTTPS）；Caddy：把 `Caddyfile` 的 `:__PUBLIC_PORT__` 换成域名即可自动 HTTPS。然后把 `.env` 的 `PUBLIC_URL` 改为 `https://域名`，再跑一次 `deploy.sh`。
+nginx：在 `nginx/srh.conf.template` 旁边加一个带 `server_name 域名;` 的 server 块（经 Cloudflare 时可只监听 80，由 Cloudflare 提供 HTTPS）；Caddy：在 `.env` 里设 `DOMAIN=域名`，`proxy.sh` 会把它作为站点地址，自动签发 HTTPS。然后把 `.env` 的 `PUBLIC_URL` 改为 `https://域名`，再跑一次 `deploy.sh`。
 
 ### 挂在子路径下（可选，默认根路径）
 

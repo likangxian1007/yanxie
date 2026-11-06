@@ -1,7 +1,6 @@
 # 只在机器上没有 nginx 时使用（见 deploy/proxy.sh）。占位符来自 /opt/yanxie/.env。
-# 有域名后把 ":__PUBLIC_PORT__" 换成域名（例如 lab.example.com），Caddy 会自动申请 HTTPS 证书，
-# 同时把 .env 里的 PUBLIC_URL 改成 https://域名 再重新部署。
-:__PUBLIC_PORT__ {
+# __SITE__ 由 proxy.sh 填入：.env 设了 DOMAIN 就是域名（Caddy 自动申请 HTTPS 证书），否则是 ":PUBLIC_PORT"。
+__SITE__ {
 	encode zstd gzip
 
 	# WebSocket（/ws、/collab）由 reverse_proxy 自动处理 Upgrade
@@ -19,7 +18,7 @@
 	header {
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
-		# 防点击劫持：只允许本站自己嵌入（第三方 iframe 不能诱导点 LGTM / 接管云电脑）
+		# 防点击劫持：只允许本站自己嵌入（第三方 iframe 不能诱导点 LGTM 等操作）
 		X-Frame-Options SAMEORIGIN
 		Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
 		-Server

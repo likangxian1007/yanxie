@@ -18,7 +18,8 @@ fi
 
 if [ "$PROXY" = nginx ]; then
   tmp=$(mktemp)
-  sed -e "s/__PUBLIC_PORT__/$PUBLIC_PORT/g" -e "s/__APP_PORT__/$APP_PORT/g" "$APP_DIR/deploy/nginx/srh.conf.template" > "$tmp"
+  sed -e "s/__PUBLIC_PORT__/$PUBLIC_PORT/g" -e "s/__APP_PORT__/$APP_PORT/g" -e "s/server_name _;/server_name ${DOMAIN:-_};/" "$APP_DIR/deploy/nginx/srh.conf.template" > "$tmp"
+  [ -n "${DOMAIN:-}" ] && log "nginx 模式不会自动签 HTTPS 证书：请用 certbot 或在前面挂 Cloudflare"
   dst=/etc/nginx/sites-available/srh.conf
   if cmp -s "$tmp" "$dst" && [ -L /etc/nginx/sites-enabled/srh.conf ]; then
     log "nginx 配置无变化"; rm -f "$tmp"; exit 0
@@ -44,7 +45,9 @@ else
     apt-get update -qq && apt-get install -y -qq caddy >/dev/null
   fi
   tmp=$(mktemp)
-  sed -e "s/__PUBLIC_PORT__/$PUBLIC_PORT/g" -e "s/__APP_PORT__/$APP_PORT/g" "$APP_DIR/deploy/Caddyfile" > "$tmp"
+  # 设了 DOMAIN 就以域名为站点地址，Caddy 自动申请并续期 HTTPS 证书；否则只按端口提供 HTTP
+  if [ -n "${DOMAIN:-}" ]; then SITE=$DOMAIN; else SITE=":$PUBLIC_PORT"; fi
+  sed -e "s/__SITE__/$SITE/g" -e "s/__PUBLIC_PORT__/$PUBLIC_PORT/g" -e "s/__APP_PORT__/$APP_PORT/g" "$APP_DIR/deploy/Caddyfile" > "$tmp"
   install -d -o caddy -g caddy /var/log/caddy
   install -d /etc/caddy/conf.d
   if ! cmp -s "$tmp" /etc/caddy/Caddyfile; then

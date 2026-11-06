@@ -3,14 +3,16 @@
 # 对已有其他服务的机器是安全的：已装的组件跳过；已经在用的 nginx 只新增一个独立端口的站点；
 # ufw 已启用时只追加放行规则，不改默认策略；已有 swap 不动；已存在的 .env 不覆盖。
 # 用法（root）：bash bootstrap-server.sh
-#   必填：REPO_URL=<仓库地址>（目录里已有检出时可省略）
+#   推荐：DOMAIN=lab.example.com（先把域名 A 记录指向本机；Caddy 自动签 HTTPS）
+#   REPO_URL 默认是公开仓库 https://github.com/likangxian1007/yanxie.git，用自己的 fork 时覆盖
 #   可选环境变量：APP_ROOT=/opt/yanxie  PUBLIC_PORT=80  APP_PORT=8787  SWAP_SIZE=4G  PROXY=auto|nginx|caddy
 set -euo pipefail
 
 APP_ROOT=${APP_ROOT:-/opt/yanxie}
 # 要部署的仓库（你的 fork 或镜像），例如 https://github.com/<your-org>/yanxie.git。
 # 私有仓库请用 SSH 地址，并自行为 root 配好对该仓库有只读权限的 SSH key。
-REPO_URL=${REPO_URL:-}
+REPO_URL=${REPO_URL:-https://github.com/likangxian1007/yanxie.git}
+DOMAIN=${DOMAIN:-}
 SWAP_SIZE=${SWAP_SIZE:-4G}
 
 log() { printf '\033[1;34m[bootstrap]\033[0m %s\n' "$*"; }
@@ -67,7 +69,7 @@ log "防火墙"
 command -v ufw >/dev/null 2>&1 || apt-get install -y -qq ufw >/dev/null
 if ufw status | grep -q 'Status: active'; then
   ufw allow 22/tcp >/dev/null
-  if [ "$PUBLIC_PORT" = 80 ]; then
+  if [ "$PUBLIC_PORT" = 80 ] || [ -n "$DOMAIN" ]; then
     ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null
     log "ufw 已在用，追加放行 22/80/443"
   else
@@ -98,7 +100,8 @@ if [ ! -f "$APP_ROOT/.env" ]; then
   log "生成 $APP_ROOT/.env（随机密钥；LLM_API_KEY 需手动填写）"
   pg_pw=$(openssl rand -hex 24)
   ip=$(curl -fsS4 --max-time 5 https://api.ipify.org 2>/dev/null || hostname -I | awk '{print $1}')
-  if [ "$PUBLIC_PORT" = 80 ]; then url="http://$ip"; else url="http://$ip:$PUBLIC_PORT"; fi
+  if [ -n "$DOMAIN" ]; then url="https://$DOMAIN"
+  elif [ "$PUBLIC_PORT" = 80 ]; then url="http://$ip"; else url="http://$ip:$PUBLIC_PORT"; fi
   cat > "$APP_ROOT/.env" <<EOF
 # 研协生产环境变量。只在服务器上，不进仓库。改完执行 deploy.sh 生效。
 NODE_ENV=production
@@ -107,6 +110,8 @@ PORT=8787
 # 宿主机上应用监听的端口（只绑 127.0.0.1），以及反向代理对外的端口
 APP_PORT=$APP_PORT
 PUBLIC_PORT=$PUBLIC_PORT
+# 对外域名：设了就由 Caddy 自动签发 HTTPS；留空则按 IP:PUBLIC_PORT 提供 HTTP
+DOMAIN=$DOMAIN
 PUBLIC_URL=$url
 SESSION_SECRET=$(openssl rand -hex 32)
 POSTGRES_USER=srh
