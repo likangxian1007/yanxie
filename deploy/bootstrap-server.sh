@@ -4,10 +4,10 @@
 # ufw 已启用时只追加放行规则，不改默认策略；已有 swap 不动；已存在的 .env 不覆盖。
 # 用法（root）：bash bootstrap-server.sh
 #   必填：REPO_URL=<仓库地址>（目录里已有检出时可省略）
-#   可选环境变量：APP_ROOT=/srv/srh  PUBLIC_PORT=80  APP_PORT=8787  SWAP_SIZE=4G  PROXY=auto|nginx|caddy
+#   可选环境变量：APP_ROOT=/opt/yanxie  PUBLIC_PORT=80  APP_PORT=8787  SWAP_SIZE=4G  PROXY=auto|nginx|caddy
 set -euo pipefail
 
-APP_ROOT=${APP_ROOT:-/srv/srh}
+APP_ROOT=${APP_ROOT:-/opt/yanxie}
 # 要部署的仓库（你的 fork 或镜像），例如 https://github.com/<your-org>/yanxie.git。
 # 私有仓库请用 SSH 地址，并自行为 root 配好对该仓库有只读权限的 SSH key。
 REPO_URL=${REPO_URL:-}

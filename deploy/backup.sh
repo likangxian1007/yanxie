@@ -3,7 +3,7 @@
 # 恢复：docker compose ... exec -T db pg_restore -U srh -d srh --clean --if-exists < 文件.dump
 set -euo pipefail
 
-APP_ROOT=${APP_ROOT:-/srv/srh}
+APP_ROOT=${APP_ROOT:-/opt/yanxie}
 ENV_FILE="$APP_ROOT/.env"
 OUT="$APP_ROOT/backups"
 KEEP_DAYS=${KEEP_DAYS:-14}

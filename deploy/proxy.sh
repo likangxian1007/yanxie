@@ -3,7 +3,7 @@
 # PROXY=auto：机器上 nginx 在运行就用 nginx（新增独立站点 srh.conf），否则用 Caddy。
 set -euo pipefail
 
-APP_ROOT=${APP_ROOT:-/srv/srh}
+APP_ROOT=${APP_ROOT:-/opt/yanxie}
 APP_DIR=${APP_DIR:-$APP_ROOT/app}
 set -a; . "$APP_ROOT/.env"; set +a
 PUBLIC_PORT=${PUBLIC_PORT:-80}

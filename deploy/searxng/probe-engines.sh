@@ -16,7 +16,7 @@ fetch() {
   if [[ -n "$BASE" ]]; then
     curl -fsS --max-time 25 "$1"
   else
-    # 不用 docker compose exec：服务器上的项目名是 srh（deploy.sh 用 -p srh --env-file /srv/srh/.env），
+    # 不用 docker compose exec：服务器上的项目名是 srh（deploy.sh 用 -p srh --env-file /opt/yanxie/.env），
     # 在仓库目录里直接 compose exec 找不到项目、也缺 env-file，所以按容器名直接 exec。
     docker exec "${APP_CONTAINER:-srh-app-1}" wget -qO- -T 25 "$1"
   fi

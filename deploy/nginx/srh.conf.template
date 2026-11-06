@@ -1,5 +1,5 @@
-# 科研平台（scientific-research-harness）站点，由 deploy/bootstrap-server.sh 和 deploy.sh 渲染安装到
-# /etc/nginx/sites-available/srh.conf。占位符 __PUBLIC_PORT__ / __APP_PORT__ 来自 /srv/srh/.env。
+# 科研平台（yanxie）站点，由 deploy/bootstrap-server.sh 和 deploy.sh 渲染安装到
+# /etc/nginx/sites-available/srh.conf。占位符 __PUBLIC_PORT__ / __APP_PORT__ 来自 /opt/yanxie/.env。
 # 独立端口、独立变量名，不影响同机其他站点。
 
 map $http_upgrade $srh_connection_upgrade {

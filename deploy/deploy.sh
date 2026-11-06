@@ -12,7 +12,7 @@ if [ -z "${SRH_DEPLOY_REEXEC:-}" ]; then
 fi
 trap 'rm -f "$0"' EXIT
 
-APP_ROOT=${APP_ROOT:-/srv/srh}
+APP_ROOT=${APP_ROOT:-/opt/yanxie}
 APP_DIR="$APP_ROOT/app"
 ENV_FILE="$APP_ROOT/.env"
 REF=${1:-${DEPLOY_REF:-main}}

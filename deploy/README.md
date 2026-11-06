@@ -1,6 +1,6 @@
 # 部署（自托管，单台 Linux 服务器）
 
-脚本按 Ubuntu / Debian（apt、ufw、systemd）编写；其他发行版可手动安装 Docker 与反向代理后直接用 `docker compose`。`APP_ROOT` 默认 `/srv/srh`，可通过环境变量改成任意目录（下文路径相应替换）。
+脚本按 Ubuntu / Debian（apt、ufw、systemd）编写；其他发行版可手动安装 Docker 与反向代理后直接用 `docker compose`。`APP_ROOT` 默认 `/opt/yanxie`，可通过环境变量改成任意目录（下文路径相应替换）。
 
 链路：反向代理（对外 `PUBLIC_PORT`）→ `127.0.0.1:APP_PORT` 上的 `app` 容器（Node 后端，同时托管前端构建产物；WebSocket 路径 `/ws`、`/collab`）→ `db` 容器（PostgreSQL 16，命名卷 `pgdata`）。上传文件在命名卷 `storage`（容器内 `/data/storage`）。
 
@@ -18,10 +18,10 @@
 
 | 路径 | 用途 |
 | --- | --- |
-| `/srv/srh/app` | 仓库检出（由 `deploy.sh` 管理，不要手改） |
-| `/srv/srh/.env` | 生产环境变量，只在服务器上，权限 600；`app/.env` 是指向它的软链 |
-| `/srv/srh/backups` | 数据库与文件备份，保留 14 天 |
-| `/srv/srh/deploy-history.log` | 每次成功部署的时间和提交 |
+| `/opt/yanxie/app` | 仓库检出（由 `deploy.sh` 管理，不要手改） |
+| `/opt/yanxie/.env` | 生产环境变量，只在服务器上，权限 600；`app/.env` 是指向它的软链 |
+| `/opt/yanxie/backups` | 数据库与文件备份，保留 14 天 |
+| `/opt/yanxie/deploy-history.log` | 每次成功部署的时间和提交 |
 
 ## 第一次
 
@@ -30,17 +30,17 @@
 REPO_URL=https://github.com/<your-org>/yanxie.git PUBLIC_PORT=80 APP_PORT=8787 bash bootstrap-server.sh
 # 端口被占时换成别的，比如 PUBLIC_PORT=8088 APP_PORT=18787
 # 私有仓库：REPO_URL 用 SSH 地址，并先为 root 配好对该仓库有只读权限的 SSH key（如 GitHub Deploy key）
-nano /srv/srh/.env          # 填 LLM_API_KEY（DeepSeek）
-bash /srv/srh/tools/deploy/deploy.sh
+nano /opt/yanxie/.env          # 填 LLM_API_KEY（DeepSeek）
+bash /opt/yanxie/tools/deploy/deploy.sh
 ```
 
-`bootstrap-server.sh` 做的事：缺 Docker/Compose 才装；没有 swap 才建；ufw 未启用时放行 22/80/443 并启用，已启用时追加 22 和对外端口（`PUBLIC_PORT=80` 时为 80/443）；设置了 `REPO_URL` 时克隆仓库到 `/srv/srh/app`；生成 `.env`（随机 `SESSION_SECRET` 和数据库密码）；配置反向代理；写入每日 03:30 备份的 cron。已经存在的 `.env` 不会被覆盖。
+`bootstrap-server.sh` 做的事：缺 Docker/Compose 才装；没有 swap 才建；ufw 未启用时放行 22/80/443 并启用，已启用时追加 22 和对外端口（`PUBLIC_PORT=80` 时为 80/443）；设置了 `REPO_URL` 时克隆仓库到 `/opt/yanxie/app`；生成 `.env`（随机 `SESSION_SECRET` 和数据库密码）；配置反向代理；写入每日 03:30 备份的 cron。已经存在的 `.env` 不会被覆盖。
 
 ## 更新
 
 ```bash
-bash /srv/srh/tools/deploy/deploy.sh            # 部署 origin/main 最新提交
-bash /srv/srh/tools/deploy/deploy.sh <分支或提交>
+bash /opt/yanxie/tools/deploy/deploy.sh            # 部署 origin/main 最新提交
+bash /opt/yanxie/tools/deploy/deploy.sh <分支或提交>
 ```
 
 入口用 `tools/deploy` 下的副本而不是 `app/deploy`：上一次部署的提交里如果没有 `deploy/`（比如试部署一个应用分支），`app/deploy` 就不存在，副本始终在。
@@ -58,25 +58,25 @@ bash /srv/srh/tools/deploy/deploy.sh <分支或提交>
 
 ## 备份与恢复
 
-每天 03:30 由 `/etc/cron.d/srh-backup` 运行 `backup.sh`，日志在 `/var/log/srh-backup.log`。手动：`bash /srv/srh/tools/deploy/backup.sh`。
+每天 03:30 由 `/etc/cron.d/srh-backup` 运行 `backup.sh`，日志在 `/var/log/srh-backup.log`。手动：`bash /opt/yanxie/tools/deploy/backup.sh`。
 
-`/srv/srh/tools/deploy` 是部署工具的副本，每次部署自动刷新；当要部署的提交里没有 `deploy/` 目录时（比如临时验证某个应用分支：`deploy.sh feat/xxx`），`deploy.sh` 会改用这份副本。
+`/opt/yanxie/tools/deploy` 是部署工具的副本，每次部署自动刷新；当要部署的提交里没有 `deploy/` 目录时（比如临时验证某个应用分支：`deploy.sh feat/xxx`），`deploy.sh` 会改用这份副本。
 
 ```bash
-cd /srv/srh/app
+cd /opt/yanxie/app
 # 恢复数据库
-docker compose -p srh --env-file /srv/srh/.env exec -T db \
-  pg_restore -U srh -d srh --clean --if-exists < /srv/srh/backups/db-YYYYMMDD-HHMMSS.dump
+docker compose -p srh --env-file /opt/yanxie/.env exec -T db \
+  pg_restore -U srh -d srh --clean --if-exists < /opt/yanxie/backups/db-YYYYMMDD-HHMMSS.dump
 # 恢复上传文件
-docker compose -p srh --env-file /srv/srh/.env exec -T app tar -C /data -xzf - < /srv/srh/backups/files-YYYYMMDD-HHMMSS.tar.gz
+docker compose -p srh --env-file /opt/yanxie/.env exec -T app tar -C /data -xzf - < /opt/yanxie/backups/files-YYYYMMDD-HHMMSS.tar.gz
 ```
 
 ## 常用
 
 ```bash
-cd /srv/srh/app
-docker compose -p srh --env-file /srv/srh/.env ps
-docker compose -p srh --env-file /srv/srh/.env logs -f app
+cd /opt/yanxie/app
+docker compose -p srh --env-file /opt/yanxie/.env ps
+docker compose -p srh --env-file /opt/yanxie/.env logs -f app
 tail -f /var/log/nginx/srh.error.log
 ```
 
@@ -89,7 +89,7 @@ nginx：在 `nginx/srh.conf.template` 旁边加一个带 `server_name 域名;` �
 和别的站点共用一个域名、把平台放在 `https://域名/app/` 时，前端要在构建时知道这个前缀（资源、路由、API、WebSocket 都会带上它），服务端不用改：
 
 ```bash
-# /srv/srh/.env
+# /opt/yanxie/.env
 WEB_BASE_PATH=/app/
 PUBLIC_URL=https://域名/app
 ```
@@ -114,7 +114,7 @@ PUBLIC_URL=https://域名/app
 
 云电脑功能已移除，不再构建桌面镜像或启用 DESKTOP 配置。Docker 代理仍供 Notebook 内核使用。历史桌面容器与卷的清理由管理员在独立维护操作中处理。
 
-Notebook 内核的网络规则在 `deploy/kernel-firewall.sh`：内核只能被 app 连到 :8888，不能主动连 app、别的容器或宿主机端口（内核网络本身是 internal，没有外网）。`deploy.sh` 每次部署后自动执行；需要开机持久化时，使用在 Docker 启动后运行的 oneshot 服务，单元名 `srh-kernel-firewall`，`ExecStart=/bin/bash /srv/srh/tools/deploy/kernel-firewall.sh`。查看：`bash deploy/kernel-firewall.sh --status`。
+Notebook 内核的网络规则在 `deploy/kernel-firewall.sh`：内核只能被 app 连到 :8888，不能主动连 app、别的容器或宿主机端口（内核网络本身是 internal，没有外网）。`deploy.sh` 每次部署后自动执行；需要开机持久化时，使用在 Docker 启动后运行的 oneshot 服务，单元名 `srh-kernel-firewall`，`ExecStart=/bin/bash /opt/yanxie/tools/deploy/kernel-firewall.sh`。查看：`bash deploy/kernel-firewall.sh --status`。
 
 内核里的 `pip install` 走 Compose 服务 `pypi-proxy`（`deploy/pypi-proxy`，tinyproxy 白名单只有 `pypi.org`、`files.pythonhosted.org`，其他域名返回 403）。app 起内核时把它接入该项目的 internal 内核网络（别名 `pypi-proxy`）并注入 `HTTP(S)_PROXY`；内核网络本身仍没有外网。要加镜像或别的域名，改 `deploy/pypi-proxy/filter` 后重新部署。想完全断网：`.env` 里设 `KERNEL_PIP_PROXY_CONTAINER=`（空）。
 ## 接入：API 令牌（可选，默认关）
@@ -122,11 +122,11 @@ Notebook 内核的网络规则在 `deploy/kernel-firewall.sh`：内核只能被 
 给外部 agent / 脚本用的「门禁卡」（API.md §2.21）。代码默认关闭，打开后在「设置 → 接入」里生成令牌：
 
 ```bash
-# /srv/srh/.env
+# /opt/yanxie/.env
 API_TOKENS_ENABLED=true
 # 每张令牌每分钟的调用上限（默认 120）
 API_TOKENS_RATE_PER_MINUTE=120
-bash /srv/srh/tools/deploy/deploy.sh
+bash /opt/yanxie/tools/deploy/deploy.sh
 ```
 
 用法：
@@ -142,12 +142,12 @@ curl -s https://你的站点/api/v1/projects -H "Authorization: Bearer srh_pat_�
 上面那张令牌也能当 MCP 凭证用（API.md §2.22）：外部 agent 填「地址 + 令牌」就能读写，不用自己写命令。**需要同时打开两个开关**：
 
 ```bash
-# /srv/srh/.env
+# /opt/yanxie/.env
 API_TOKENS_ENABLED=true
 MCP_ENABLED=true
 # 每张令牌每天的写操作上限（默认 200），防 agent 死循环刷屏
 MCP_WRITE_PER_DAY=200
-bash /srv/srh/tools/deploy/deploy.sh
+bash /opt/yanxie/tools/deploy/deploy.sh
 ```
 
 客户端（dots / Cursor 这类）填：
@@ -171,11 +171,11 @@ bash /srv/srh/tools/deploy/deploy.sh
 把项目里的事推到自己的飞书 / 企业微信 / 钉钉群（API.md §2.23）。代码默认关闭：
 
 ```bash
-# /srv/srh/.env
+# /opt/yanxie/.env
 NOTIFY_ENABLED=true
 # 每人最多几个订阅（默认 3）
 NOTIFY_MAX_PER_USER=3
-bash /srv/srh/tools/deploy/deploy.sh
+bash /opt/yanxie/tools/deploy/deploy.sh
 ```
 
 用法：群设置 → 群机器人 → 添加 → **自定义机器人** → 复制它给的 webhook 地址 → 填进「设置 → 通知」。
@@ -200,7 +200,7 @@ bash /srv/srh/tools/deploy/deploy.sh
 以任意支持 587 + STARTTLS 的 SMTP 中继为例：
 
 ```bash
-# /srv/srh/.env
+# /opt/yanxie/.env
 MAIL_FROM="研协 <no-reply@example.com>"
 SMTP_HOST=smtp.example.com
 SMTP_PORT=587
@@ -209,7 +209,7 @@ SMTP_PASS=<SMTP 密码或 key>
 # 默认值即可：587 强制 STARTTLS，服务器不支持就拒绝发送，不会降级成明文
 # SMTP_SECURE=
 # SMTP_STARTTLS=true
-bash /srv/srh/tools/deploy/deploy.sh
+bash /opt/yanxie/tools/deploy/deploy.sh
 ```
 
 | 变量             | 默认                         | 说明                                                                                         |

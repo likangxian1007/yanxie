@@ -1,4 +1,4 @@
-# 只在机器上没有 nginx 时使用（见 deploy/proxy.sh）。占位符来自 /srv/srh/.env。
+# 只在机器上没有 nginx 时使用（见 deploy/proxy.sh）。占位符来自 /opt/yanxie/.env。
 # 有域名后把 ":__PUBLIC_PORT__" 换成域名（例如 lab.example.com），Caddy 会自动申请 HTTPS 证书，
 # 同时把 .env 里的 PUBLIC_URL 改成 https://域名 再重新部署。
 :__PUBLIC_PORT__ {
