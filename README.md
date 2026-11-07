@@ -177,19 +177,25 @@ docker compose --env-file .env up -d --build
 - **自动回退**：本地模型没开、超时、出错或输入太长时，自动改走云端，用户无感。
 - **混合看板**：侧边栏「混合 AI」页面显示本地/云端调用次数、本地速度和延迟、每次调用走了哪一侧。
 
-**最低配置**：带 Arc 核显的 Intel Core Ultra 处理器，16 GB 以上内存（推荐 32 GB），约 10 GB 磁盘空间。没有 Intel 设备或没装本地模型时，所有任务自动使用云端。
+**配置要求**：
 
-```bash
-# 启动本地模型（OVMS，Intel 核显）
-ovms --rest_port 8000 --source_model OpenVINO/Qwen3-4B-int4-ov --model_name qwen3-4b --target_device GPU
-# .env
-LOCAL_LLM_BASE_URL=http://127.0.0.1:8000/v3
-LOCAL_LLM_MODEL=qwen3-4b
+- **推荐**：带 Arc 核显的 Intel Core Ultra（Qwen3-4B int4 约 22–25 tok/s）。带 Iris Xe 核显的 Intel 也会用 GPU。
+- **其他 Intel / AMD**：回落到 CPU 推理，较慢（约 3–8 tok/s）；也可以只装 PDF 翻译服务，模型任务走云端。
+- **内存**：最低 8 GB，推荐 16 GB 以上。**磁盘**：约 5 GB。
+- 没装本地模型或服务没启动时，所有任务自动走云端，不报错。
+
+**一键安装（Windows）**：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\hybrid-local\install.ps1   # 检测硬件，安装 OVMS、模型和 PDF 服务，写入 .env
+powershell -ExecutionPolicy Bypass -File tools\hybrid-local\start.ps1     # 启动 OVMS、PDF 服务和研协
+powershell -ExecutionPolicy Bypass -File tools\hybrid-local\check.ps1     # 报告哪些服务可达
+powershell -ExecutionPolicy Bypass -File tools\hybrid-local\stop.ps1      # 停止 start.ps1 启动的进程
 ```
 
-保版式 PDF 翻译是一个可选的独立服务，见 [tools/pdf-translate](tools/pdf-translate/README.md)。它使用 AGPL-3.0 的 [pdf2zh-next](https://github.com/PDFMathTranslate/PDFMathTranslate-next)，作为依赖单独安装、单独运行，不随本仓库分发。
+Linux（x86_64，Ubuntu 22.04/24.04）用 `tools/hybrid-local/install.sh` 和 `tools/hybrid-local/start.sh`（`start` / `stop` / `check`）；macOS 暂无脚本，可按文档手动配置 OpenAI 兼容端点（如 Ollama）。参数、排错和手动配置见 [docs/hybrid-local-setup.md](docs/hybrid-local-setup.md)。
 
-> 一键安装脚本（自动装好 OVMS、下载模型并写入配置）**即将提供**。
+保版式 PDF 翻译服务见 [tools/pdf-translate](tools/pdf-translate/README.md)。它用到 AGPL-3.0 的 [pdf2zh-next](https://github.com/PDFMathTranslate/PDFMathTranslate-next)：安装脚本会把它作为依赖单独装好、作为独立进程运行；本仓库从不包含它的代码。
 
 ## ✦ 本地开发与试跑
 
@@ -240,6 +246,7 @@ pnpm dev                 # 后端 :8787，前端 :5173
 - [ARCHITECTURE.md](ARCHITECTURE.md)：架构、模块归属、一致性设计
 - [API.md](API.md)：REST / WebSocket / 事件契约
 - [deploy/README.md](deploy/README.md)：自托管部署、备份恢复、接入与通知
+- [docs/hybrid-local-setup.md](docs/hybrid-local-setup.md)：混合 AI 本机部分的一键安装与配置要求
 - [CONTRIBUTING.md](CONTRIBUTING.md)：贡献指南（fork + PR、`pnpm check`、i18n）
 - [STYLE.md](STYLE.md)：界面规范
 - [AGENTS.md](AGENTS.md)：给 AI Agent 的开发守则
@@ -332,19 +339,25 @@ Yanxie can run part of its AI work on a small model on your own machine and send
 - **Automatic cloud fallback:** if the local model is off, times out, fails or the input is too long, the call transparently goes to the cloud.
 - **Hybrid dashboard:** the "Hybrid AI" page in the sidebar shows local/cloud call counts, local speed and latency, and which side served each call.
 
-**Minimum hardware:** an Intel Core Ultra processor with Arc iGPU, 16 GB RAM or more (32 GB recommended), about 10 GB of disk. Without an Intel device or a local model, every task automatically uses the cloud.
+**Requirements:**
 
-```bash
-# Start the local model (OVMS on the Intel iGPU)
-ovms --rest_port 8000 --source_model OpenVINO/Qwen3-4B-int4-ov --model_name qwen3-4b --target_device GPU
-# .env
-LOCAL_LLM_BASE_URL=http://127.0.0.1:8000/v3
-LOCAL_LLM_MODEL=qwen3-4b
+- **Recommended:** Intel Core Ultra with Arc iGPU (Qwen3-4B int4 at about 22–25 tok/s). Intel CPUs with Iris Xe graphics also use the GPU.
+- **Other Intel / AMD:** falls back to CPU inference, which is slow (about 3–8 tok/s). You can also install only the PDF translation service and keep model tasks in the cloud.
+- **RAM:** 8 GB minimum, 16 GB or more recommended. **Disk:** about 5 GB.
+- If no local model is installed or a service is down, every task goes to the cloud automatically, without errors.
+
+**One-click install (Windows):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\hybrid-local\install.ps1   # detect hardware; install OVMS, the model and the PDF service; write .env
+powershell -ExecutionPolicy Bypass -File tools\hybrid-local\start.ps1     # start OVMS, the PDF service and Yanxie
+powershell -ExecutionPolicy Bypass -File tools\hybrid-local\check.ps1     # report which services are reachable
+powershell -ExecutionPolicy Bypass -File tools\hybrid-local\stop.ps1      # stop the processes start.ps1 launched
 ```
 
-Layout-preserving PDF translation is an optional, separate service; see [tools/pdf-translate](tools/pdf-translate/README.md). It uses the AGPL-3.0 [pdf2zh-next](https://github.com/PDFMathTranslate/PDFMathTranslate-next), installed as a dependency and run as its own process; it is not distributed with this repository.
+On Linux (x86_64, Ubuntu 22.04/24.04) use `tools/hybrid-local/install.sh` and `tools/hybrid-local/start.sh` (`start` / `stop` / `check`); there is no macOS script yet, but you can point the config at any OpenAI-compatible endpoint (e.g. Ollama) by hand. Options, troubleshooting and manual setup are in [docs/hybrid-local-setup.md](docs/hybrid-local-setup.md).
 
-> A one-click install script (sets up OVMS, downloads the model and writes the config) is **coming soon**.
+The layout-preserving PDF translation service is described in [tools/pdf-translate](tools/pdf-translate/README.md). It uses the AGPL-3.0 [pdf2zh-next](https://github.com/PDFMathTranslate/PDFMathTranslate-next): the install script installs it separately as a dependency and runs it as its own process; this repository never vendors its code.
 
 ### Local development
 
@@ -393,7 +406,7 @@ Everything lives in `.env`; see [.env.example](.env.example) for the full list.
 
 ### Docs and contributing
 
-[ARCHITECTURE.md](ARCHITECTURE.md) (architecture and consistency design) · [API.md](API.md) (REST / WebSocket / event contracts) · [deploy/README.md](deploy/README.md) (self-hosting) · [CONTRIBUTING.md](CONTRIBUTING.md) · [STYLE.md](STYLE.md) · [AGENTS.md](AGENTS.md) (rules for AI coding agents).
+[ARCHITECTURE.md](ARCHITECTURE.md) (architecture and consistency design) · [API.md](API.md) (REST / WebSocket / event contracts) · [deploy/README.md](deploy/README.md) (self-hosting) · [docs/hybrid-local-setup.md](docs/hybrid-local-setup.md) (hybrid local AI setup) · [CONTRIBUTING.md](CONTRIBUTING.md) · [STYLE.md](STYLE.md) · [AGENTS.md](AGENTS.md) (rules for AI coding agents).
 
 Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and make sure `pnpm check` passes. Yanxie is released under the [Apache License 2.0](LICENSE).
 

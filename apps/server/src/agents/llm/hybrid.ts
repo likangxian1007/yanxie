@@ -470,11 +470,33 @@ export async function redact(
   // 实体按长度降序替换，避免短名字先替掉长名字的一部分
   entities.sort((a, b) => b.text.length - a.text.length);
   const out = texts.map((t) => {
-    let s = t;
-    for (const e of entities)
-      if (s.includes(e.text)) s = s.split(e.text).join(take(e.kind, e.text));
-    for (const r of RULES) s = s.replace(r.re, (m) => take(r.kind, m));
-    return s;
+    // 先跑规则（确定性），命中的区间受保护；模型实体只能落在剩下的空隙里。
+    // 否则模型把邮箱域名 lab.cn 认成机构先替掉，邮箱规则就认不出整个地址，用户名会泄露。
+    const spans: { start: number; end: number; ph: string }[] = [];
+    const free = (start: number, end: number) =>
+      spans.every((x) => end <= x.start || start >= x.end);
+    for (const r of RULES) {
+      r.re.lastIndex = 0;
+      for (const m of t.matchAll(r.re)) {
+        const start = m.index;
+        const end = start + m[0].length;
+        if (m[0] && free(start, end)) spans.push({ start, end, ph: take(r.kind, m[0]) });
+      }
+    }
+    for (const e of entities) {
+      for (let i = t.indexOf(e.text); i >= 0; i = t.indexOf(e.text, i + 1)) {
+        const end = i + e.text.length;
+        if (free(i, end)) spans.push({ start: i, end, ph: take(e.kind, e.text) });
+      }
+    }
+    spans.sort((a, b) => a.start - b.start);
+    let s = '';
+    let pos = 0;
+    for (const x of spans) {
+      s += t.slice(pos, x.start) + x.ph;
+      pos = x.end;
+    }
+    return s + t.slice(pos);
   });
   return {
     texts: out,

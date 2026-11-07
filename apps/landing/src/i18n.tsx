@@ -28,7 +28,7 @@ const zh = {
   nav: {
     aria: '主导航',
     homeAria: '研协 首页',
-    links: ['工作方式', '功能', '外部 Agent', '手机端'],
+    links: ['工作方式', '功能', '混合 AI', '外部 Agent', '手机端'],
     themeAria: '切换亮暗主题',
     toLight: '切换到亮色',
     toDark: '切换到暗色',
@@ -46,7 +46,7 @@ const zh = {
     eyebrow: '为科研团队而生的多人 AI Agent 平台',
     h1a: '把整个课题组，',
     h1b: '和 AI 放进同一张桌子',
-    desc: '导师、学生和 Agent 在同一个课题里协作：协调者把需求拆成任务，线程并行推进，文档实时协同，审阅一键 LGTM，组会汇报自动起草——每一步都有依据，每一份进展都看得见。',
+    desc: '导师、学生和 Agent 在同一个课题里协作：协调者把需求拆成任务，线程并行推进，文档实时协同，审阅一键 LGTM，组会汇报自动起草——每一步都有依据，每一份进展都看得见。在英特尔酷睿 Ultra 电脑上，敏感数据还能先在本机脱敏再交给云端。',
     secondary: '看它怎么工作',
   },
   frame: {
@@ -96,6 +96,7 @@ const zh = {
       '团队记忆',
       '研究空间',
       '文献库页码出处',
+      'PDF 保版式翻译',
       'Notebook',
     ],
     rowB: [
@@ -103,6 +104,7 @@ const zh = {
       'Skill',
       'MCP',
       '多模型与推理强度',
+      '本地 + 云端混合 AI',
       '科研 profile',
       '联网学术检索',
       '定时任务',
@@ -215,7 +217,7 @@ const zh = {
     desc: '文献、方案、实验、文档、审阅、任务——成员和 Agent 用同一套上下文工作，每一步都有出处，每一次改动都能回滚。',
     library: {
       title: '文献库',
-      desc: '导入 arXiv、DOI 或 PDF，解析出结构、公式和图表；提问时答案带页码出处，一键生成 BibTeX、插入 LaTeX 引用。',
+      desc: '导入 arXiv、DOI 或 PDF，解析出结构、公式和图表；提问时答案带页码出处，一键生成 BibTeX、插入 LaTeX 引用；整篇 PDF 还能保版式译成中文。',
       authors: 'Dosovitskiy 等 · 2020 · arXiv:2010.11929',
       question: 'ViT 在小数据集上表现如何？',
       answer: '在 ImageNet 预训练后，ViT-B/16 在中等规模数据上与 ResNet 持平，数据越多优势越明显。',
@@ -314,6 +316,78 @@ const zh = {
       },
     ],
   },
+  hybrid: {
+    eyebrow: '本地 + 云端 混合 AI',
+    titleA: '敏感数据留在本机，',
+    titleB: '复杂推理交给云端',
+    desc: '在英特尔酷睿 Ultra 电脑上，研协把 Qwen3-4B 用 OpenVINO 跑在 Intel Arc 核显上（约 25 tok/s），隐私脱敏、上下文压缩、润色翻译摘要这类高频小任务在本机完成；拆解课题、长文写作这类复杂推理交给云端 DeepSeek。',
+    trip: {
+      title: '隐私护栏：本地脱敏 → 云端推理 → 本地还原',
+      meta: 'qwen3-4b · OpenVINO · Intel Arc GPU',
+      steps: ['① 原文', '② 云端实际收到', '③ 本机还原'],
+      local: '本机',
+      cloud: '云端',
+      raw: [
+        { t: '张伟', s: true },
+        { t: '在样本 ' },
+        { t: 'S-2031', s: true },
+        { t: ' 上测得准确率 ' },
+        { t: '93.7%', s: true },
+        { t: '，联系 ' },
+        { t: 'zhangwei@lab.cn', s: true },
+      ],
+      masked: [
+        { t: '〔人名1〕', s: true },
+        { t: '在样本' },
+        { t: '〔编号1〕', s: true },
+        { t: '上测得准确率' },
+        { t: '〔数值1〕', s: true },
+        { t: '，联系' },
+        { t: '〔邮箱1〕', s: true },
+      ],
+      restored: '张伟对样本 S-2031 完成测试，测得准确率为 93.7%，联系方式为 zhangwei@lab.cn。',
+      mapTitle: '对照表只留在本机',
+      map: [
+        ['〔人名1〕', '张伟'],
+        ['〔编号1〕', 'S-2031'],
+        ['〔数值1〕', '93.7%'],
+        ['〔邮箱1〕', 'zhangwei@lab.cn'],
+      ],
+    },
+    routes: [
+      {
+        title: '本地端',
+        meta: 'Qwen3-4B · OpenVINO · Intel Arc GPU',
+        desc: '高频小任务就近处理，不花云端额度；标为「仅本地」的内容绝不离开本机。',
+        items: ['隐私脱敏', '上下文压缩', '润色', '翻译', '总结', 'PDF 翻译'],
+      },
+      {
+        title: '云端',
+        meta: 'DeepSeek',
+        desc: '需要强推理的工作交给云端，发出前先在本机脱敏，云端只看到占位符。',
+        items: ['协调者拆解', '续写与长文', '组会汇报', '多步工具调用'],
+      },
+      {
+        title: '自动回退',
+        meta: '每 30 秒探活',
+        desc: '本地模型没开、出错或不在英特尔电脑上，请求自动改走云端，不用你操心；每次调用都标明「本地」或「云端（已回退）」。',
+        items: ['本地', '云端', '自动'],
+      },
+    ],
+    dash: {
+      title: '混合 AI 看板',
+      desc: '每次调用记一条：走本地还是云端、延迟、tok/s、是否回退、脱敏了几处，还有本地处理占比和省下的云端费用。',
+      alt: '研协混合 AI 看板：本地端 qwen3-4b 运行在 Intel Arc GPU，按任务分流的统计',
+      caption: '本地端与云端状态、本地处理占比、本地速度与按任务的分流规则。',
+    },
+    pdf: {
+      title: '整篇 PDF 保版式翻译',
+      desc: '在文献库里点「翻译 PDF」，整篇译成中文并保留原版式——公式、图表、排版不变，双语对照或仅译文都能下载。本地模型优先，本地失败时整篇交给云端。',
+      alt: '研协翻译 PDF：Attention Is All You Need 的双语对照，由本地模型完成',
+      caption: '基于 PDFMathTranslate-next（pdf2zh-next），同一份 PDF 不重复翻译。',
+    },
+    note: '线上体验 co.thinkloft.io 为纯云端；本地联动需在装有本地模型的英特尔酷睿 Ultra 电脑上部署，其他电脑会自动全部走云端。',
+  },
   mobile: {
     eyebrow: '手机端',
     titleA: '导师在手机上，',
@@ -392,7 +466,7 @@ const zh = {
   footer: {
     topAria: '回到顶部',
     navAria: '页脚导航',
-    links: ['工作方式', '功能', '外部 Agent', '手机端', '自托管'],
+    links: ['工作方式', '功能', '混合 AI', '外部 Agent', '手机端', '自托管'],
     copyright: '© {y} 研协 · thinkloft',
   },
 };
@@ -411,7 +485,7 @@ const en: Dict = {
   nav: {
     aria: 'Main navigation',
     homeAria: 'Thinkloft home',
-    links: ['How it works', 'Features', 'Agents', 'Mobile'],
+    links: ['How it works', 'Features', 'Hybrid AI', 'Agents', 'Mobile'],
     themeAria: 'Toggle light and dark theme',
     toLight: 'Switch to light',
     toDark: 'Switch to dark',
@@ -429,7 +503,7 @@ const en: Dict = {
     eyebrow: 'The multiplayer AI agent platform for research teams',
     h1a: 'Your whole lab, ',
     h1b: 'and AI, at one table',
-    desc: 'Advisors, students, and agents in one shared project. The Coordinator turns requests into tasks, Threads run in parallel, docs sync live, Reviews close with one LGTM, and group meeting reports draft themselves — every step grounded in evidence, every bit of progress in plain sight.',
+    desc: 'Advisors, students, and agents in one shared project. The Coordinator turns requests into tasks, Threads run in parallel, docs sync live, Reviews close with one LGTM, and group meeting reports draft themselves — every step grounded in evidence, every bit of progress in plain sight. On Intel Core Ultra PCs, sensitive data is redacted on the machine before anything reaches the cloud.',
     secondary: 'See how it works',
   },
   frame: {
@@ -480,6 +554,7 @@ const en: Dict = {
       'Team memory',
       'Research Space',
       'Page-level Library citations',
+      'Layout-preserving PDF translation',
       'Notebook',
     ],
     rowB: [
@@ -487,6 +562,7 @@ const en: Dict = {
       'Skills',
       'MCP',
       'Multi-model & reasoning effort',
+      'Local + cloud hybrid AI',
       'Research profiles',
       'Web & scholarly search',
       'Scheduled tasks',
@@ -600,7 +676,7 @@ const en: Dict = {
     desc: 'Literature, plans, experiments, docs, reviews, tasks — members and agents share one context. Every step is sourced; every change can be rolled back.',
     library: {
       title: 'Library',
-      desc: 'Import from arXiv, DOI, or PDF and get structure, equations, and figures parsed. Answers cite the exact page, with one-click BibTeX and LaTeX citations.',
+      desc: 'Import from arXiv, DOI, or PDF and get structure, equations, and figures parsed. Answers cite the exact page, with one-click BibTeX and LaTeX citations — and whole PDFs can be translated with the layout intact.',
       authors: 'Dosovitskiy et al. · 2020 · arXiv:2010.11929',
       question: 'How does ViT do on small datasets?',
       answer:
@@ -710,6 +786,92 @@ const en: Dict = {
       },
     ],
   },
+  hybrid: {
+    eyebrow: 'Local + cloud hybrid AI',
+    titleA: 'Sensitive data stays on your PC, ',
+    titleB: 'hard reasoning goes to the cloud',
+    desc: 'On an Intel Core Ultra PC, Thinkloft runs Qwen3-4B with OpenVINO on the Intel Arc GPU (about 25 tok/s). Frequent small jobs — privacy redaction, context compression, polishing, translation, and summaries — stay on the machine, while complex reasoning like project planning and long-form writing goes to DeepSeek in the cloud.',
+    trip: {
+      title: 'Privacy guard: redact locally → reason in the cloud → restore locally',
+      meta: 'qwen3-4b · OpenVINO · Intel Arc GPU',
+      steps: ['① Original', '② What the cloud sees', '③ Restored locally'],
+      local: 'Local',
+      cloud: 'Cloud',
+      raw: [
+        { t: 'Zhang Wei', s: true },
+        { t: ' measured ' },
+        { t: '93.7%', s: true },
+        { t: ' accuracy on sample ' },
+        { t: 'S-2031', s: true },
+        { t: '; contact ' },
+        { t: 'zhangwei@lab.cn', s: true },
+      ],
+      masked: [
+        { t: '[Name1]', s: true },
+        { t: ' measured ' },
+        { t: '[Value1]', s: true },
+        { t: ' accuracy on sample ' },
+        { t: '[ID1]', s: true },
+        { t: '; contact ' },
+        { t: '[Email1]', s: true },
+      ],
+      restored:
+        'Zhang Wei completed testing on sample S-2031 with 93.7% accuracy; contact: zhangwei@lab.cn.',
+      mapTitle: 'The lookup table never leaves your PC',
+      map: [
+        ['[Name1]', 'Zhang Wei'],
+        ['[ID1]', 'S-2031'],
+        ['[Value1]', '93.7%'],
+        ['[Email1]', 'zhangwei@lab.cn'],
+      ],
+    },
+    routes: [
+      {
+        title: 'Local',
+        meta: 'Qwen3-4B · OpenVINO · Intel Arc GPU',
+        desc: 'Frequent small jobs run right on the machine, with no cloud spend. Anything marked local-only never leaves it.',
+        items: [
+          'Redaction',
+          'Context compression',
+          'Polish',
+          'Translate',
+          'Summarize',
+          'PDF translation',
+        ],
+      },
+      {
+        title: 'Cloud',
+        meta: 'DeepSeek',
+        desc: 'Work that needs strong reasoning goes to the cloud — redacted locally first, so the cloud only sees placeholders.',
+        items: [
+          'Coordinator planning',
+          'Long-form writing',
+          'Meeting reports',
+          'Multi-step tool calls',
+        ],
+      },
+      {
+        title: 'Automatic fallback',
+        meta: 'Health check every 30 s',
+        desc: 'If the local model is off, errors out, or the PC isn’t an Intel machine, requests quietly switch to the cloud. Every call is labeled Local or Cloud (fallback).',
+        items: ['Local', 'Cloud', 'Auto'],
+      },
+    ],
+    dash: {
+      title: 'Hybrid AI dashboard',
+      desc: 'Every call is logged: local or cloud, latency, tok/s, fallback, and how many spans were redacted — plus the local share and the cloud cost saved.',
+      alt: 'Thinkloft hybrid AI dashboard: local qwen3-4b on the Intel Arc GPU, with per-task routing stats',
+      caption: 'Local and cloud status, local share, local speed, and per-task routing rules.',
+    },
+    pdf: {
+      title: 'Layout-preserving PDF translation',
+      desc: 'Click Translate PDF in the Library to translate a whole paper while keeping its layout — equations, figures, and typesetting intact. Download bilingual or translation-only. The local model goes first; if it fails, the cloud redoes the whole paper.',
+      alt: 'Thinkloft PDF translation: a bilingual Attention Is All You Need, translated by the local model',
+      caption:
+        'Built on PDFMathTranslate-next (pdf2zh-next). The same PDF is never translated twice.',
+    },
+    note: 'The online demo at co.thinkloft.io is cloud-only. Local + cloud hybrid runs on an Intel Core Ultra PC with the local model installed; other machines automatically use the cloud for everything.',
+  },
   mobile: {
     eyebrow: 'Mobile',
     titleA: 'Advisors on the go, ',
@@ -788,7 +950,7 @@ const en: Dict = {
   footer: {
     topAria: 'Back to top',
     navAria: 'Footer navigation',
-    links: ['How it works', 'Features', 'Agents', 'Mobile', 'Self-hosting'],
+    links: ['How it works', 'Features', 'Hybrid AI', 'Agents', 'Mobile', 'Self-hosting'],
     copyright: '© {y} Thinkloft',
   },
 };

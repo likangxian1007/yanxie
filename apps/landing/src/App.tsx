@@ -1,9 +1,10 @@
-import { Bento } from './sections/Bento';
+﻿import { Bento } from './sections/Bento';
 import { CapabilityMarquee } from './sections/CapabilityMarquee';
 import { ExternalAgents } from './sections/ExternalAgents';
 import { FinalCta } from './sections/FinalCta';
 import { Footer } from './sections/Footer';
 import { Hero } from './sections/Hero';
+import { Hybrid } from './sections/Hybrid';
 import { Mobile } from './sections/Mobile';
 import { Nav } from './sections/Nav';
 import { SelfHost } from './sections/SelfHost';
@@ -22,6 +23,7 @@ export function App({ initialLang }: { initialLang?: Lang } = {}) {
           <div id="features" className="scroll-mt-20">
             <Bento />
           </div>
+          <Hybrid />
           <ExternalAgents />
           <Mobile />
           <SelfHost />

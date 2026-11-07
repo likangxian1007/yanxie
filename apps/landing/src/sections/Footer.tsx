@@ -1,8 +1,8 @@
-import { fmt, useLang } from '../i18n';
+﻿import { fmt, useLang } from '../i18n';
 import { APP_URL } from '../links';
 
 /** 页脚导航锚点；文案按下标取 t.footer.links */
-const NAV = ['#how', '#features', '#agents', '#mobile', '#selfhost'];
+const NAV = ['#how', '#features', '#hybrid', '#agents', '#mobile', '#selfhost'];
 
 export function Footer() {
   const { t } = useLang();

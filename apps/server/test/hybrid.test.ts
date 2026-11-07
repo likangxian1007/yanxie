@@ -18,7 +18,8 @@ let server: Server;
 let base = '';
 let up = true;
 const reply = '<think>\n\n</think>\n\n本地摘要';
-const entityJson = '[{"kind":"person","text":"张伟"}]';
+const defaultEntityJson = '[{"kind":"person","text":"张伟"}]';
+let entityJson = defaultEntityJson;
 
 beforeAll(async () => {
   server = createServer((req, res) => {
@@ -63,6 +64,7 @@ afterAll(() => new Promise<void>((r) => server.close(() => r())));
 
 beforeEach(() => {
   up = true;
+  entityJson = defaultEntityJson;
   resetHybridForTest();
 });
 
@@ -143,6 +145,25 @@ describe('隐私护栏', () => {
     expect(out).toContain('〔人名1〕');
     expect(restore(out, r.items)).toBe(text);
   });
+
+  const emailText = '张伟在样本 S-2031 上测得准确率 93.7%，联系 zhangwei@lab.cn';
+  for (const [name, json] of [
+    ['模型把邮箱域名认成机构', '[{"kind":"person","text":"张伟"},{"kind":"org","text":"lab.cn"}]'],
+    [
+      '模型把邮箱用户名认成人名',
+      '[{"kind":"person","text":"张伟"},{"kind":"person","text":"zhangwei"}]',
+    ],
+  ] as const) {
+    it(`${name}时，邮箱仍整体脱敏，不泄露任何片段`, async () => {
+      entityJson = json;
+      const r = await redact(cfg(), [emailText]);
+      const out = r.texts[0]!;
+      expect(out).toContain('〔邮箱1〕');
+      for (const s of ['zhangwei', 'lab.cn', '@', '〔机构']) expect(out).not.toContain(s);
+      expect(out).toBe('〔人名1〕在样本 〔编号1〕 上测得准确率 〔数值1〕，联系 〔邮箱1〕');
+      expect(restore(out, r.items)).toBe(emailText);
+    });
+  }
 
   it('同一原文用同一个占位符，年份等整数不动', async () => {
     const r = await redact(cfg({ LOCAL_LLM_BASE_URL: '' }), ['2025 年 0.5 和 0.5'], {

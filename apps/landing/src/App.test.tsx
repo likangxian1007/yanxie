@@ -18,6 +18,19 @@ describe('落地页', () => {
     expect(document.getElementById('mobile')).toBeInTheDocument();
   });
 
+  it('混合 AI 区块：往返示意、纯云端说明，且不泄露服务器地址', () => {
+    render(<App />);
+    expect(document.getElementById('hybrid')).toBeInTheDocument();
+    const text = document.body.textContent ?? '';
+    expect(text).toContain('本地脱敏 → 云端推理 → 本地还原');
+    expect(text).toContain('纯云端');
+    expect(text).toContain('保版式翻译');
+    const html = document.body.innerHTML;
+    expect(html).not.toContain('64.177');
+    expect(html).not.toContain(':8080');
+    expect(html).not.toContain('localhost');
+  });
+
   it('不出现已下线的说法', () => {
     render(<App />);
     const text = document.body.textContent ?? '';

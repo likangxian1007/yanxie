@@ -1,4 +1,4 @@
-import { ArrowUpRight, Moon, Sun } from 'lucide-react';
+﻿import { ArrowUpRight, Moon, Sun } from 'lucide-react';
 import { motion, useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
 import { useEffect, useState } from 'react';
 
@@ -61,7 +61,7 @@ function LangToggle() {
   );
 }
 
-const LINK_HREFS = ['#how', '#features', '#agents', '#mobile'];
+const LINK_HREFS = ['#how', '#features', '#hybrid', '#agents', '#mobile'];
 
 /** 当前所在章节（导航高亮）：章节进入视口中部带时切换 */
 function useActiveSection(ids: string[]) {
@@ -85,7 +85,7 @@ function useActiveSection(ids: string[]) {
   return active;
 }
 
-const SECTION_IDS = ['how', 'features', 'agents', 'mobile'];
+const SECTION_IDS = ['how', 'features', 'hybrid', 'agents', 'mobile'];
 
 export function Nav() {
   const { t } = useLang();
