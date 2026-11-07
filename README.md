@@ -175,19 +175,7 @@ pnpm dev                 # 后端 :8787，前端 :5173
 
 ## ✦ 架构
 
-```mermaid
-flowchart LR
-  U["成员 / 导师<br/>浏览器 · 手机"] -->|HTTPS · WebSocket| P["Caddy / nginx"]
-  P --> S["app · Fastify<br/>REST · 实时事件 · Yjs 协同"]
-  S --> R["Agent 运行时<br/>协调者 · 线程 · 记忆 · 审阅"]
-  R --> M["模型服务<br/>DeepSeek · OpenRouter · OpenAI 兼容"]
-  R --> T["工具<br/>文档 · 表格 · LaTeX · 幻灯片 · 文献 · 看板"]
-  T --> G["GROBID<br/>论文解析"]
-  T --> X["SearXNG<br/>学术检索"]
-  T --> K["Notebook 内核<br/>隔离容器"]
-  S --> D[("PostgreSQL<br/>数据与协同状态")]
-  S --> F[("文件存储")]
-```
+<p align="center"><img src="docs/assets/architecture.png" alt="研协架构图：浏览器经 Caddy/nginx 访问 app（Fastify），app 连接 Agent 运行时、PostgreSQL；Agent 调用模型服务与协同工具，工具连接 GROBID、SearXNG 与 Notebook 内核" width="100%"></p>
 
 | 目录              | 内容                                                                |
 | ----------------- | ------------------------------------------------------------------- |
