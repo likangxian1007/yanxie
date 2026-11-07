@@ -230,12 +230,124 @@ flowchart LR
 
 ## English
 
-**Yanxie (研协)** is an open-source, self-hostable, multi-user AI agent platform for research teams. Each project shares a _coordinator_ agent that splits requests into parallel threads handled by worker agents. Members, advisors and agents work in one shared context: real-time collaborative docs, LaTeX, sheets and slides (Yjs), a paper library with GROBID parsing, Python notebooks in isolated containers, kanban, academic web search, and group-meeting reports generated from project context. Every step an agent takes is recorded, and advisors approve key milestones with review / LGTM.
+<p align="center">
+  <a href="https://co.thinkloft.io"><b>Live demo</b></a> ·
+  <a href="#deploy-on-your-own-server"><b>Deploy</b></a> ·
+  <a href="#features"><b>Features</b></a> ·
+  <a href="#architecture"><b>Architecture</b></a> ·
+  <a href="ARCHITECTURE.md"><b>Docs</b></a>
+</p>
 
-- **Try it:** [co.thinkloft.io](https://co.thinkloft.io)
-- **Deploy on your server:** `DOMAIN=lab.example.com bash deploy/bootstrap-server.sh`, set `LLM_API_KEY` in `/opt/yanxie/.env`, then run `bash /opt/yanxie/tools/deploy/deploy.sh`. Caddy obtains HTTPS certificates automatically.
-- **Local development:** `pnpm install && cp .env.example .env && pnpm dev`
-- Models: DeepSeek by default; OpenRouter or any OpenAI-compatible endpoint. UI in Chinese and English.
+**Yanxie (研协, "research together")** is an open-source, self-hostable, multi-user AI agent platform built for research teams.
+
+Most AI assistants today are *one person, one chat box*. Yanxie takes a different approach: **every research project shares one coordinator agent**. Members post requests to the project desk. The coordinator breaks each request into **threads** and hands them to worker agents that run in parallel. Students, advisors and agents all work in the same context and on the same documents, spreadsheets, LaTeX papers, slides, papers and kanban boards. Every step an agent takes, from its reasoning to its tool calls and edits, is recorded. Advisors can follow along at any time and approve key milestones with a review / LGTM.
+
+You can run Yanxie on your own lab server, so messages, documents and research data stay in your own database.
+
+> [!TIP]
+> Want to try it before deploying? Sign up on **[co.thinkloft.io](https://co.thinkloft.io)**, the official instance we run.
+
+### Why Yanxie
+
+| | Typical AI assistant | Yanxie |
+| --- | --- | --- |
+| Unit of use | One person, one chat | One project, one team |
+| How work runs | One question, one answer, in sequence | Coordinator splits work into threads; agents run in parallel |
+| Context | Re-explained every time | Project plan, team knowledge base and personal memory accumulate |
+| Visibility | Only the final answer | Reasoning, tool calls and edits are fully traceable |
+| Quality gate | You judge it yourself | Advisor reviews and LGTMs key milestones |
+| Output | Copy-paste somewhere else | Written straight into shared docs, sheets, LaTeX and slides |
+| Data | Stored by the vendor | Self-hosted on your own server |
+
+### Features
+
+- **Coordinator and parallel threads.** One coordinator per project understands requests, splits them into tasks, dispatches worker agents and summarizes progress on the project desk. Agents *claim* a resource before editing it, so conflicts are flagged before they happen.
+- **My workspace.** Each member has private sessions and a personal space. When an idea is ready, hand it to the coordinator in one click, or share it with a teammate by link.
+- **Review and LGTM.** Advisors inspect the coordinator's reasoning, the research space and every agent change, then approve at key checkpoints. Nothing important ships without a human in the loop.
+- **Official plan and team knowledge base.** The project plan is versioned with diffs, and changes go through proposals and approval. Team knowledge and personal memory make agents understand the project better over time.
+- **Real-time collaboration.** Rich-text docs, LaTeX papers (source / split / preview), spreadsheets with formulas and slides support simultaneous editing with live cursors (Yjs CRDT). The AI writes directly into them.
+- **Paper library.** Import PDFs, parse layout and references with GROBID, annotate, take notes and ask questions grounded in the paper.
+- **Research space and notebooks.** Run Python notebooks in isolated containers with resource limits and an allow-listed package proxy, so the process and evidence stay in the project.
+- **Group-meeting reports, kanban and web search.** Draft meeting reports from the project's context; track work on kanban boards and to-do lists; search the web through a self-hosted SearXNG plus Crossref, OpenAlex and arXiv.
+- **Also included:** multiple models (DeepSeek by default; OpenRouter or any OpenAI-compatible endpoint, including self-hosted vLLM) · Chinese and English UI · mobile layout with light and dark themes · API tokens and MCP so external agents can read and write the project (off by default) · group-chat bot notifications (off by default) · usage-based billing (off by default).
+
+### Deploy on your own server
+
+Yanxie is a self-hostable web app. For real use, deploy it on a Linux server, point your own domain at it, and your team opens `https://your-domain`.
+
+**You need:** an Ubuntu / Debian server (4 vCPU and 8 GB RAM or more recommended; GROBID alone uses about 3 GB when idle), a domain whose A record points to the server, and an API key for a model provider ([DeepSeek](https://platform.deepseek.com) by default).
+
+```bash
+# 1. As root on the server, download the bootstrap script
+curl -fsSLO https://raw.githubusercontent.com/likangxian1007/yanxie/main/deploy/bootstrap-server.sh
+
+# 2. Install Docker, set up the reverse proxy and firewall, clone the repo,
+#    and generate an .env with random secrets
+DOMAIN=lab.example.com bash bootstrap-server.sh
+
+# 3. Add your model key, then deploy
+nano /opt/yanxie/.env        # LLM_API_KEY=sk-...   ADMIN_EMAILS=you@example.com
+bash /opt/yanxie/tools/deploy/deploy.sh
+```
+
+Open `https://lab.example.com` and sign up. Caddy obtains and renews the HTTPS certificate automatically. To update later, run `deploy.sh` again: it backs up the database, rebuilds, restarts and health-checks. The database and uploads are also backed up every day at 03:30.
+
+- Already running nginx? The script adds a separate site and leaves your other sites alone; set up HTTPS yourself with certbot or Cloudflare in that case.
+- Serve under a sub-path such as `https://domain/app/` with `WEB_BASE_PATH=/app/`.
+- Port conflict? Use `PUBLIC_PORT=8088 APP_PORT=18787`.
+- No need for notebooks? Set `KERNEL_MODE=none`.
+- Prefer plain Docker Compose: `cp .env.example .env`, fill in `POSTGRES_PASSWORD`, `SESSION_SECRET`, `LLM_API_KEY` and `PUBLIC_URL`, then `docker compose --env-file .env up -d --build` and put your own HTTPS reverse proxy in front of `127.0.0.1:8787`.
+
+Backups and restore, GROBID memory tuning, API tokens, MCP and notifications are covered in [deploy/README.md](deploy/README.md) (Chinese).
+
+### Local development
+
+To try it on your own computer or contribute, you don't need Docker or Postgres (an embedded PGlite database is used). Requires Node ≥ 22.12 and pnpm 11 (`corepack enable`).
+
+```bash
+pnpm install
+cp .env.example .env     # set at least LLM_API_KEY; without it the app starts but agents won't reply
+pnpm dev                 # server on :8787, web on :5173
+```
+
+Then open `http://localhost:5173`. That address only works on your own machine and is meant for development; for team use, deploy to a server as above. Run `pnpm check` before submitting changes.
+
+### Architecture
+
+A pnpm monorepo in strict TypeScript:
+
+| Path | What it is |
+| --- | --- |
+| `apps/server` | Fastify backend: REST, WebSocket, Yjs collaboration, agent runtime, database migrations |
+| `apps/web` | React + Vite frontend |
+| `apps/landing` | Product landing page |
+| `packages/shared` | Types, zod schemas and i18n helpers shared by server and web |
+| `deploy/` | Self-hosting scripts, notebook kernel image, SearXNG / GROBID config |
+
+The agent runtime is event-driven: each coordinator or thread *turn* is triggered by an event (a message, a review, a finished thread), runs tool calls against the project's documents and services, and writes everything to an execution log. Context is budgeted and compacted, and memory is layered into the official plan, the team knowledge base and personal memory. See the diagram above and [ARCHITECTURE.md](ARCHITECTURE.md) for details.
+
+### Configuration
+
+Everything lives in `.env`; see [.env.example](.env.example) for the full list.
+
+| Variable | Meaning |
+| --- | --- |
+| `DOMAIN` | Domain for server deploys; when set, HTTPS is issued automatically |
+| `PUBLIC_URL` | Public URL, e.g. `https://lab.example.com` |
+| `LLM_API_KEY` / `LLM_BASE_URL` | Default model provider (DeepSeek or any OpenAI-compatible endpoint) |
+| `OPENROUTER_API_KEY` | Optional; enables more models via OpenRouter |
+| `ADMIN_EMAILS` | Admin emails (comma-separated); the first user is *not* made admin automatically |
+| `SESSION_SECRET` | Session signing secret, 32+ random characters (generated by the bootstrap script) |
+| `KERNEL_MODE` | Notebook kernel: `none` / `gateway` / `docker` |
+| `SMTP_*` / `MAIL_FROM` | Password-reset email; without it the link is only written to the log |
+| `API_TOKENS_ENABLED` / `MCP_ENABLED` | API tokens and MCP access (off by default) |
+| `BILLING_ENABLED` | Usage-based billing (off by default) |
+
+### Docs and contributing
+
+[ARCHITECTURE.md](ARCHITECTURE.md) (architecture and consistency design) · [API.md](API.md) (REST / WebSocket / event contracts) · [deploy/README.md](deploy/README.md) (self-hosting) · [CONTRIBUTING.md](CONTRIBUTING.md) · [STYLE.md](STYLE.md) · [AGENTS.md](AGENTS.md) (rules for AI coding agents).
+
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and make sure `pnpm check` passes. Yanxie is released under the [Apache License 2.0](LICENSE).
 
 ## 许可证
 
