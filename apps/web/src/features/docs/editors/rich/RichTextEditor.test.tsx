@@ -22,6 +22,9 @@ const aiState = vi.hoisted(() => ({
 vi.mock('../../ai/useDocAi', async () => {
   const React = await import('react');
   return {
+    readLocalOnly: () => false,
+    writeLocalOnly: () => {},
+    routeLabel: () => '',
     AI_ACTION_LABEL: {
       continue: '续写',
       polish: '润色',

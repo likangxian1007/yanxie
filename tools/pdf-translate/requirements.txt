@@ -1,0 +1,7 @@
+# pdf2zh-next 是 AGPL-3.0，只作为独立服务运行，不并入研协代码。
+pdf2zh-next==2.9.0
+# pdf2zh-next 2.9.0 与 bitstring 4.4 不兼容（导入时报错）
+bitstring>=4.2,<4.4
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart>=0.0.9

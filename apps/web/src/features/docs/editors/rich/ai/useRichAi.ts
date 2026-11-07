@@ -218,6 +218,7 @@ export function useRichAi(editor: Editor, bridge: AiBridge, projectId: string, d
     status: ai.status,
     text: ai.text,
     error: ai.error,
+    route: ai.route,
     open,
     submit,
     retry,

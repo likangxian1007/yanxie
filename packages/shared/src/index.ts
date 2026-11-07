@@ -49,3 +49,5 @@ export * from './i18n';
 export * from './feedback';
 // 按量计费与 KyrenPay 充值（feat/models-billing）
 export * from './billing';
+// 本地 + 云端混合 AI（feat/hybrid-local-ai）
+export * from './hybrid';

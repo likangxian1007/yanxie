@@ -6,8 +6,12 @@ import { z } from 'zod';
  * 单位：积分（整数），1 积分 = 0.001 美元零售价。
  */
 
-export const CreditKind = z.enum(['signup', 'usage', 'topup', 'refund', 'adjust']);
+export const CreditKind = z.enum(['signup', 'usage', 'topup', 'refund', 'adjust', 'transfer']);
 export type CreditKind = z.infer<typeof CreditKind>;
+
+/** personal = 个人积分；team = 项目团队积分 */
+export const CreditWallet = z.enum(['personal', 'team']);
+export type CreditWallet = z.infer<typeof CreditWallet>;
 
 export interface CreditLedgerEntry {
   id: string;
@@ -19,6 +23,8 @@ export interface CreditLedgerEntry {
   projectId: string | null;
   note: string | null;
   createdAt: string;
+  /** 变动的钱包（旧数据都是 personal） */
+  wallet?: CreditWallet;
 }
 
 export interface TopupPack {
@@ -49,9 +55,70 @@ export interface BillingOverview {
   packs: TopupPack[];
   prices: ModelPrice[];
   recent: CreditLedgerEntry[];
+  /** 我所在项目的团队积分（只列有余额、有上限或我能管理的项目） */
+  teams?: TeamWalletSummary[];
 }
 
-export const TopupInput = z.object({ sku: z.string().min(1).max(40) });
+/** 一个项目的团队积分（从「我」的角度） */
+export interface TeamWalletSummary {
+  projectId: string;
+  projectName: string;
+  /** 我是项目 owner / admin，可以转入、充值、设上限 */
+  canManage: boolean;
+  balance: number;
+  /** 我本月用掉的团队积分 */
+  monthUsed: number;
+  /** 我每月可用的团队积分上限；null = 不限 */
+  monthlyCap: number | null;
+}
+
+/** 成员本月用量（GET /billing/projects/:id，仅 owner / admin 可见） */
+export interface TeamMemberUsage {
+  userId: string;
+  name: string;
+  role: string;
+  monthUsed: number;
+  monthlyCap: number | null;
+}
+
+/** GET /billing/projects/:id —— 聊天框的余额提示也用它 */
+export interface ProjectBillingView extends TeamWalletSummary {
+  enabled: boolean;
+  /** 管理员免扣费 */
+  exempt: boolean;
+  personalBalance: number;
+  /** 在这个项目里下一次调用平台模型会扣哪个钱包 */
+  source: CreditWallet;
+  /** 仅 canManage 时返回 */
+  members: TeamMemberUsage[] | null;
+}
+
+/** POST /billing/projects/:id/transfer：个人积分转入团队 */
+export const CreditTransferInput = z.object({
+  credits: z.number().int().min(1).max(10_000_000),
+});
+export type CreditTransferInput = z.infer<typeof CreditTransferInput>;
+
+/** PUT /billing/projects/:id/members/:userId/cap；null = 不限 */
+export const MemberCapInput = z.object({
+  monthlyCap: z.number().int().min(0).max(100_000_000).nullable(),
+});
+export type MemberCapInput = z.infer<typeof MemberCapInput>;
+
+/** GET /billing/projects/:id/turns?ids=… 每轮 agent 的积分消耗 */
+export interface TurnCredits {
+  turnId: string;
+  credits: number;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+export const TopupInput = z.object({
+  sku: z.string().min(1).max(40),
+  /** 充到哪；默认 personal。team 需要 projectId，且是项目 owner / admin */
+  wallet: CreditWallet.optional(),
+  projectId: z.string().min(1).max(64).optional(),
+});
 export type TopupInput = z.infer<typeof TopupInput>;
 
 export interface TopupCheckout {
@@ -69,6 +136,8 @@ export interface PayOrderView {
   status: PayOrderStatus;
   createdAt: string;
   paidAt: string | null;
+  wallet?: CreditWallet;
+  projectId?: string | null;
 }
 
 export const CreditAdjustInput = z.object({

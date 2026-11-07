@@ -73,6 +73,8 @@ export async function createTopup(
   ctx: AppContext,
   user: { id: string; email: string },
   sku: string,
+  /** 充到团队：调用方已校验 owner / admin */
+  team?: { projectId: string } | null,
 ): Promise<TopupCheckout> {
   const client = kyrenClient(ctx);
   if (!client) throw new ApiError('payment_unavailable', '在线充值暂未开放');
@@ -91,6 +93,8 @@ export async function createTopup(
     amountCents: dollarsToCents(pack.price),
     currency: pack.currency,
     productId,
+    wallet: team ? 'team' : 'personal',
+    projectId: team?.projectId ?? null,
   });
   const cs = await client.createCheckout({
     productId,
@@ -99,13 +103,24 @@ export async function createTopup(
     email: user.email,
     merchantName: ctx.config.KYREN_MERCHANT_NAME,
     ref,
-    metadata: { sku: pack.sku, userId: user.id },
+    metadata: {
+      sku: pack.sku,
+      userId: user.id,
+      ...(team ? { wallet: 'team', projectId: team.projectId } : {}),
+    },
   });
   await ctx.db.db.update(payOrders).set({ kyrenCheckoutId: cs.id }).where(eq(payOrders.ref, ref));
   return { ref, url: cs.url };
 }
 
 type OrderRow = typeof payOrders.$inferSelect;
+
+/** 订单充到哪个钱包；团队订单的项目被删了就退回下单人个人 */
+function walletOf(order: OrderRow) {
+  return order.wallet === 'team' && order.projectId
+    ? { wallet: 'team' as const, projectId: order.projectId }
+    : { wallet: 'personal' as const };
+}
 
 async function markReview(ctx: AppContext, ref: string, note: string) {
   console.error(`[billing] 充值订单 ${ref} 需人工复核：${note}`);
@@ -167,6 +182,7 @@ export async function fulfillPaid(ctx: AppContext, facts: PaidFacts): Promise<Fu
       kind: 'topup',
       ref: `topup:${order.ref}`,
       note: order.sku,
+      ...walletOf(order),
     });
     return 'credited' as const;
   });
@@ -198,6 +214,7 @@ async function handleRefund(ctx: AppContext, order: OrderRow, event: KyrenEvent)
       kind: 'refund',
       ref: `refund:${refundId}`,
       note: order.ref,
+      ...walletOf(order),
     });
     await tx.update(payOrders).set({ status: 'refunded' }).where(eq(payOrders.id, order.id));
   });
@@ -260,6 +277,8 @@ function toView(o: OrderRow): PayOrderView {
     status: o.status,
     createdAt: o.createdAt.toISOString(),
     paidAt: o.paidAt?.toISOString() ?? null,
+    wallet: o.wallet,
+    projectId: o.projectId,
   };
 }
 

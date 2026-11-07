@@ -24,6 +24,7 @@ import { useMotionPreset } from '@/lib/motion';
 import { AI_ACTION_LABEL } from '../../../ai/useDocAi';
 import type { AiBridge } from '../ext/ai-session';
 import type { RichAi } from '../ai/useRichAi';
+import { AiRouteBadge, LocalOnlyToggle } from '@/features/docs/ai/AiRouteBadge';
 import { markdownToHtml } from '../lib/markdown';
 import { ICON_STROKE } from './icons';
 import { tr } from '@/lib/i18n';
@@ -249,6 +250,7 @@ function PromptBar({
             );
           })}
           <span className="flex-1" />
+          <LocalOnlyToggle />
           <button
             type="button"
             onClick={onCancel}
@@ -319,6 +321,7 @@ function ResultBlock({ ai }: { ai: RichAi }) {
             AI · {label}
           </span>
         )}
+        <AiRouteBadge route={ai.route} />
       </div>
       <div
         ref={previewRef}

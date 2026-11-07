@@ -144,6 +144,8 @@ export const DocumentAiInput = z.object({
   selection: z.string().max(50_000).default(''),
   /** 自定义指令 / 主题 */
   prompt: z.string().max(4000).default(''),
+  /** 混合 AI：local_only = 只用本机模型，内容不出本机 */
+  privacy: z.enum(['auto', 'local_only']).default('auto'),
 });
 export type DocumentAiInput = z.input<typeof DocumentAiInput>;
 

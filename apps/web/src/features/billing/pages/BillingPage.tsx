@@ -5,18 +5,12 @@ import { Page, PageHeader } from '@/components/layout/Page';
 import { Badge, Button, EmptyState, RelativeTime, Skeleton, toast } from '@/components/ui';
 import { errorMessage } from '@/features/settings/lib';
 import { cn } from '@/lib/cn';
-import { locale, tr } from '@/lib/i18n';
+import { tr } from '@/lib/i18n';
 import { useBilling, useStartTopup, useTopupOrder } from '../api';
+import { TeamWalletSection } from '../components/TeamWalletSection';
+import { creditsToUsd, formatCredits } from '../format';
 
-/** 积分显示：整数，千分位 */
-export function formatCredits(n: number): string {
-  return n.toLocaleString(locale());
-}
-
-/** 积分折合美元（1 积分 = 0.001 美元） */
-export function creditsToUsd(n: number): string {
-  return `$${(n / 1000).toFixed(2)}`;
-}
+export { creditsToUsd, formatCredits };
 
 function kindLabel(kind: CreditKind): string {
   switch (kind) {
@@ -30,6 +24,8 @@ function kindLabel(kind: CreditKind): string {
       return tr('退款');
     case 'adjust':
       return tr('人工调整');
+    case 'transfer':
+      return tr('转入团队');
   }
 }
 
@@ -77,6 +73,7 @@ function LedgerRow({ e }: { e: CreditLedgerEntry }) {
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-body text-fg">{kindLabel(e.kind)}</span>
+          {e.wallet === 'team' && <Badge tone="neutral">{tr('团队')}</Badge>}
           {e.model && (
             <span className="min-w-0 truncate font-mono text-caption text-fg-subtle">
               {e.model}
@@ -153,7 +150,7 @@ export function BillingPage() {
 
         <section className="rounded-lg border border-line bg-surface p-4 sm:p-5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-caption text-fg-subtle">{tr('当前余额')}</span>
+            <span className="text-caption text-fg-subtle">{tr('个人积分')}</span>
             {b.exempt && <Badge tone="accent">{tr('管理员免扣费')}</Badge>}
             {!b.enabled && <Badge tone="neutral">{tr('计费未开启')}</Badge>}
           </div>
@@ -174,8 +171,23 @@ export function BillingPage() {
           </p>
         </section>
 
+        {b.teams && b.teams.length > 0 && (
+          <section className="flex flex-col gap-3">
+            <h2 className="text-small font-medium text-fg">{tr('团队积分')}</h2>
+            {b.teams.map((team) => (
+              <TeamWalletSection
+                key={team.projectId}
+                team={team}
+                personalBalance={b.balance}
+                packs={b.packs}
+                topupEnabled={b.topupEnabled}
+              />
+            ))}
+          </section>
+        )}
+
         <section>
-          <h2 className="mb-3 text-small font-medium text-fg">{tr('充值')}</h2>
+          <h2 className="mb-3 text-small font-medium text-fg">{tr('充值个人积分')}</h2>
           {!b.topupEnabled && (
             <p className="mb-3 text-small text-fg-muted">{tr('在线充值暂未开放')}</p>
           )}

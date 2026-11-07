@@ -74,6 +74,7 @@ import { PaperSelectionReader } from '../pdf/PaperSelectionReader';
 import { SelectionTranslation } from '../pdf/SelectionTranslation';
 import type { PdfTextSelection } from '../pdf/selection';
 import { usePdfDocument } from '../pdf/usePdfDocument';
+import { PdfTranslateButton } from '../pdf/PdfTranslateDialog';
 import { isPersonalLibrary, libraryKey, libraryPath, type LibraryScope } from '../lib/scope';
 import { useLibraryScope } from '../lib/use-library-scope';
 import '../library.css';
@@ -677,6 +678,9 @@ function ReaderHeader({
             </Button>
             <span>{tr('当前资料仅自己可见，发布时创建独立项目副本。')}</span>
           </>
+        )}
+        {writable && (
+          <PdfTranslateButton scope={pid} paperId={paper.id} hasPdf={Boolean(paper.fileId)} />
         )}
         {editable && (
           <Button size="sm" variant="secondary" onClick={() => setEditingMetadata(true)}>

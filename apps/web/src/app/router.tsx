@@ -162,6 +162,25 @@ export const routes: RouteObject[] = [
     ],
   },
   {
+    path: '/hybrid',
+    handle: { title: tr('混合 AI') },
+    errorElement: <RouteErrorPage />,
+    hydrateFallbackElement: <FullPageLoading />,
+    lazy: () =>
+      import('@/features/library/pages/PersonalLibraryShell').then((m) => ({
+        Component: m.PersonalLibraryShell,
+      })),
+    children: [
+      {
+        index: true,
+        lazy: () =>
+          import('@/features/hybrid/HybridPage').then((m) => ({
+            Component: m.HybridPage,
+          })),
+      },
+    ],
+  },
+  {
     path: '/admin',
     handle: { title: tr('运维后台') },
     errorElement: <RouteErrorPage />,

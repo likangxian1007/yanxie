@@ -32,6 +32,8 @@ import { notifyModule } from './notify';
 import { feedbackModule } from './feedback';
 import { adminModule } from './admin';
 import { billingModule } from './billing';
+import { hybridModule } from './hybrid';
+import { pdfTranslateModule } from './pdf-translate';
 
 export { healthModule } from './health';
 
@@ -56,6 +58,8 @@ export const apiModules: ModuleDef[] = [
   harnessModule,
   libraryModule,
   prefsModule,
+  hybridModule,
+  pdfTranslateModule,
   versioningModule,
   researchModule,
   sharingModule,

@@ -14,6 +14,7 @@ import { AGENT_NAME, SYSTEM_ACTOR } from '../../modules/projects/service';
 import { createMessage } from '../../modules/timeline/service';
 import { recordOpsEvent } from '../../lib/ops-events';
 import type { ChatMessage, ChatModel, ChatRequest, ChatToolCall } from '../llm/complete';
+import { hybridEnabled, hybridRoutes, recordCloud, tryLocal } from '../llm/hybrid';
 import { toolsFor } from '../tools';
 import {
   ToolError,
@@ -198,11 +199,14 @@ async function executeTurn(
 
   const wake = await renderWake(ctx, session, wakeRows);
   const harness = await prepareHarness(ctx, session, thread);
-  // 计费：本轮请求人付；没有请求人（例行 / 后台唤醒）时由项目创建者付
+  // 计费：项目里先扣团队积分（成员未超本月上限），否则扣本轮请求人；没有请求人（例行 / 后台唤醒）
+  // 时扣项目创建者。个人会话只扣个人积分。turnRef 用来算「这一轮消耗多少积分」。
   const billing: ChatRequest['billing'] = {
     payerUserId: wake.requesterUserId,
     projectId: session.projectId,
     note: 'agent',
+    turnRef: turnId,
+    ...(thread?.kind === 'personal' ? { scope: 'personal' as const } : {}),
   };
   // 内置工具 + harness 工具（load_skill / update_goal）+ 本会话可用的 MCP 工具；同名时内置优先
   const builtinTools = toolsFor(ctx, session.role);
@@ -768,18 +772,33 @@ export async function compact(
   let summary = session.contextSummary || '';
   for (let i = 0; i < chunks.length; i++) {
     const part = chunks.length > 1 ? `（第 ${i + 1}/${chunks.length} 段）` : '';
-    const res = await model.chat({
-      route,
-      billing: billing ?? { projectId: session.projectId, note: 'agent-compact' },
-      messages: [
-        { role: 'system', content: COMPACT_SYSTEM },
-        {
-          role: 'user',
-          content: `已有摘要：\n${summary || '（无）'}\n\n需要并入的对话${part}：\n${chunks[i]}`,
-        },
-      ],
+    const user = `已有摘要：\n${summary || '（无）'}\n\n需要并入的对话${part}：\n${chunks[i]}`;
+    // 混合 AI：压缩摘要优先在本机模型上做（不出本机、不计费），不行再走会话模型
+    const local = await tryLocal(ctx.config, 'compact', COMPACT_SYSTEM, user, {
+      maxTokens: 3000,
     });
-    const next = res.content.trim();
+    let next: string;
+    if (local !== null) next = local;
+    else {
+      const t0 = Date.now();
+      const res = await model.chat({
+        route,
+        billing: billing ?? { projectId: session.projectId, note: 'agent-compact' },
+        messages: [
+          { role: 'system', content: COMPACT_SYSTEM },
+          { role: 'user', content: user },
+        ],
+      });
+      if (hybridEnabled(ctx.config))
+        recordCloud(
+          'compact',
+          res.model,
+          t0,
+          res.usage,
+          hybridRoutes(ctx.config).compact !== 'cloud',
+        );
+      next = res.content.trim();
+    }
     if (!next) throw new Error('压缩模型返回了空摘要');
     summary = next.slice(0, SUMMARY_MAX_CHARS);
   }

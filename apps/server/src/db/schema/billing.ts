@@ -10,12 +10,22 @@
  *
  * 金额一律整数：积分 bigint、美元成本按 micro-USD（百万分之一美元）、订单金额按分。
  */
-import { bigint, index, integer, pgTable, text, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  bigint,
+  index,
+  integer,
+  pgTable,
+  primaryKey,
+  text,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { createdAt, id, ts } from './_helpers';
 import { projects, users } from './core';
 
-export type CreditKind = 'signup' | 'usage' | 'topup' | 'refund' | 'adjust';
+export type CreditKind = 'signup' | 'usage' | 'topup' | 'refund' | 'adjust' | 'transfer';
 export type PayOrderStatus = 'created' | 'paid' | 'refunded' | 'failed';
+/** personal = 用户个人余额；team = 项目团队余额（project_credit_balances） */
+export type CreditWallet = 'personal' | 'team';
 
 export const creditBalances = pgTable('credit_balances', {
   userId: text('user_id')
@@ -46,12 +56,46 @@ export const creditLedger = pgTable(
     projectId: text('project_id').references(() => projects.id, { onDelete: 'set null' }),
     /** 来源说明（agent / library / docs …），仅展示 */
     note: text('note'),
+    /**
+     * 变动的是哪个钱包：personal = user_id 的个人余额；team = project_id 的团队余额
+     * （team 行的 user_id 是付款成员 / 充值人，用来算成员本月用量）
+     */
+    wallet: text('wallet').$type<CreditWallet>().notNull().default('personal'),
+    /** agent 一轮的 turnId（用量行），用于「这一轮消耗 N 积分」 */
+    turnRef: text('turn_ref'),
     createdAt: createdAt(),
   },
   (t) => [
     uniqueIndex('credit_ledger_ref_uq').on(t.ref),
     index('credit_ledger_user_idx').on(t.userId, t.createdAt),
+    index('credit_ledger_project_idx').on(t.projectId, t.wallet, t.createdAt),
+    index('credit_ledger_turn_idx').on(t.turnRef),
   ],
+);
+
+/** 项目团队余额：成员在项目里用平台模型时优先扣这里 */
+export const projectCreditBalances = pgTable('project_credit_balances', {
+  projectId: text('project_id')
+    .primaryKey()
+    .references(() => projects.id, { onDelete: 'cascade' }),
+  balance: bigint('balance', { mode: 'number' }).notNull().default(0),
+  updatedAt: ts('updated_at').notNull().defaultNow(),
+});
+
+/** 成员每月可用的团队积分上限（没有行 = 不限） */
+export const projectCreditCaps = pgTable(
+  'project_credit_caps',
+  {
+    projectId: text('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    monthlyCap: bigint('monthly_cap', { mode: 'number' }).notNull(),
+    updatedAt: ts('updated_at').notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.projectId, t.userId] })],
 );
 
 export const kyrenProducts = pgTable('kyren_products', {
@@ -81,6 +125,9 @@ export const payOrders = pgTable(
     kyrenOrderId: text('kyren_order_id'),
     /** 对不上账等需要人工复核的原因 */
     reviewNote: text('review_note'),
+    /** 充到哪：personal = 下单人；team = project_id 的团队余额 */
+    wallet: text('wallet').$type<CreditWallet>().notNull().default('personal'),
+    projectId: text('project_id').references(() => projects.id, { onDelete: 'set null' }),
     createdAt: createdAt(),
     paidAt: ts('paid_at'),
   },

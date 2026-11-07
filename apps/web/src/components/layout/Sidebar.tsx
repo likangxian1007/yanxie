@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ChevronsUpDown,
   Coins,
+  Cpu,
   LogOut,
   LibraryBig,
   MessageSquareWarning,
@@ -260,6 +261,15 @@ function SidebarUser({
           }}
         >
           {tr('余额与充值')}
+        </MenuItem>
+        <MenuItem
+          icon={<Cpu strokeWidth={1.75} />}
+          onSelect={() => {
+            onNavigate?.();
+            navigate('/hybrid');
+          }}
+        >
+          {tr('混合 AI')}
         </MenuItem>
         {user?.isAdmin && (
           <MenuItem

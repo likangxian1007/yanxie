@@ -11,8 +11,10 @@ import {
   RotateCw,
   Wrench,
 } from 'lucide-react';
-import type { AgentSession } from '@srh/shared';
+import type { AgentSession, TurnCredits } from '@srh/shared';
 import { AgentThinking, Button, toast } from '@/components/ui';
+import { useInvalidateBilling, useTurnCredits } from '@/features/billing/api';
+import { formatCredits } from '@/features/billing/format';
 import { ApiRequestError } from '@/lib/api';
 import { useResumeAgent } from '@/lib/agents';
 import { cn } from '@/lib/cn';
@@ -190,6 +192,8 @@ export interface AgentLiveActivityViewProps {
   retrying?: boolean;
   /** 出错 / 停下已由页面上的横幅处理时，这里只给原因不给按钮 */
   haltedHandled?: boolean;
+  /** 这一轮消耗的积分（结束后显示在标题里；0 或没有就不显示） */
+  credits?: TurnCredits | undefined;
   className?: string;
 }
 
@@ -201,6 +205,7 @@ export function AgentLiveActivityView({
   onRetry,
   retrying = false,
   haltedHandled = false,
+  credits,
   className,
 }: AgentLiveActivityViewProps) {
   const { variants } = useMotionPreset();
@@ -276,6 +281,17 @@ export function AgentLiveActivityView({
                 <span className="font-medium text-fg">{err && halted ? err.title : T.done}</span>
                 {` · ${countable} ${T.steps}`}
                 {state.tookMs !== null && ` · ${T.took} ${fmtSeconds(state.tookMs)}`}
+                {credits && credits.credits > 0 && (
+                  <span
+                    className="tabular-nums"
+                    title={tr('输入 {input} · 输出 {output} tokens', {
+                      input: formatCredits(credits.inputTokens),
+                      output: formatCredits(credits.outputTokens),
+                    })}
+                  >
+                    {` · ${tr('消耗 {credits} 积分', { credits: formatCredits(credits.credits) })}`}
+                  </span>
+                )}
               </span>
             )}
             {state.live && (
@@ -370,6 +386,15 @@ export function AgentLiveActivity({
     now,
   });
   // 进行中或等回复时每秒走一次（计时 + 20s 提示）
+  const turnId = state.live ? undefined : state.turnSteps.at(-1)?.turnId;
+  const turnCredits = useTurnCredits(projectId, turnId ? [turnId] : []);
+  // 一轮结束：余额变了，让聊天框和余额页重新拉
+  const invalidateBilling = useInvalidateBilling();
+  const wasLive = useRef(state.live);
+  useEffect(() => {
+    if (wasLive.current && !state.live) invalidateBilling();
+    wasLive.current = state.live;
+  }, [state.live, invalidateBilling]);
   const ticking = state.live || (sentAt !== null && now - sentAt < PENDING_WINDOW_MS);
   useEffect(() => {
     if (!ticking) return;
@@ -397,6 +422,7 @@ export function AgentLiveActivity({
       onRetry={onRetry}
       retrying={resume.isPending}
       haltedHandled={haltedHandled}
+      credits={turnId ? turnCredits.data?.get(turnId) : undefined}
       className={className}
     />
   );

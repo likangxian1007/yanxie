@@ -34,6 +34,27 @@ const EnvSchema = z.object({
   LLM_DEFAULT_MODEL: z.string().default(''),
   /** 新会话默认推理强度 off / low / medium / high / max */
   LLM_DEFAULT_EFFORT: z.enum(['off', 'low', 'medium', 'high', 'max']).default('high'),
+  /**
+   * 混合 AI（agents/llm/hybrid.ts）：本机推理服务的 OpenAI 兼容地址，例如 OpenVINO Model Server
+   * http://127.0.0.1:8000/v3 或 Ollama http://127.0.0.1:11434/v1。空 = 不启用，一切走云端。
+   */
+  LOCAL_LLM_BASE_URL: z.string().default(''),
+  LOCAL_LLM_API_KEY: z.string().default(''),
+  /** 本地模型名（OVMS 的 --model_name / Ollama 的模型 tag） */
+  LOCAL_LLM_MODEL: z.string().default(''),
+  /** 本地模型跑在什么硬件上（只用于展示），例如 Intel Arc GPU / Intel NPU */
+  LOCAL_LLM_DEVICE: z.string().default(''),
+  /** 本地模型一次能吃下的最大输入（字符），超过就交给云端 */
+  LOCAL_LLM_MAX_INPUT_CHARS: z.coerce.number().int().positive().default(24_000),
+  /** 分流规则 JSON：{"doc-polish":"local","report":"cloud",...}；值 local / cloud / auto */
+  HYBRID_ROUTES: z.string().default(''),
+  /** 发往云端前先脱敏（数值、联系方式、编号、人名），回来后在本地还原 */
+  HYBRID_REDACT: bool.default(true),
+  /**
+   * 整篇 PDF 保版式翻译服务（tools/pdf-translate，基于 AGPL 的 pdf2zh-next，独立进程）地址，
+   * 例如 http://127.0.0.1:8090。空 = 不启用，界面不显示「翻译 PDF」。
+   */
+  PDF_TRANSLATE_URL: z.string().default(''),
   /** agent 上下文窗口（token，估算口径见 agents/runtime/budget.ts）；换更小窗口的模型时调小 */
   AGENT_CONTEXT_TOKENS: z.coerce.number().int().min(8_000).default(128_000),
   /** 窗口里给输出（含推理）预留的 token */
@@ -147,8 +168,8 @@ const EnvSchema = z.object({
   BILLING_ENABLED: bool.default(false),
   /** 零售价 = 成本 × 倍率；1 积分 = 0.001 美元 */
   BILLING_MARKUP: z.coerce.number().min(1).max(100).default(1.6),
-  /** 每个账号一次性赠送的积分（首次读余额时发放，幂等） */
-  BILLING_SIGNUP_CREDITS: z.coerce.number().int().min(0).max(1_000_000).default(500),
+  /** 每个账号一次性赠送的积分（首次读余额时发放，幂等；调高后老用户补差一次）。2800 ≈ ¥20 */
+  BILLING_SIGNUP_CREDITS: z.coerce.number().int().min(0).max(1_000_000).default(2800),
   /** KyrenPay 充值（没配 key 时充值入口自动隐藏） */
   KYREN_API_KEY: z.string().default(''),
   KYREN_WEBHOOK_SECRET: z.string().default(''),

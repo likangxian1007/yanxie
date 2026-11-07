@@ -20,6 +20,9 @@ const aiState = vi.hoisted(() => ({
 vi.mock('../../ai/useDocAi', async () => {
   const React = await import('react');
   return {
+    readLocalOnly: () => false,
+    writeLocalOnly: () => {},
+    routeLabel: () => '',
     useDocAi: () => {
       const [, force] = React.useReducer((x: number) => x + 1, 0);
       aiState.rerender = force;

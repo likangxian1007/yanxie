@@ -78,6 +78,12 @@
 **📊 组会汇报 · 看板 · 联网检索**<br>
 从课题上下文直接生成组会汇报；看板和待办管理进度；自托管 SearXNG 加 Crossref、OpenAlex、arXiv 学术检索。
 
+**🖥️ 混合 AI（本地 Intel + 云端）**<br>
+润色、翻译、总结等轻任务交给本机 Intel 核显上的小模型，复杂推理走云端；发往云端前先脱敏，本地不可用时自动回退云端。
+
+**📄 保版式 PDF 翻译**<br>
+整篇论文翻译成中文，保留原排版、公式和图表，输出仅译文和双语对照两种 PDF。
+
 </td>
 </tr>
 </table>
@@ -161,6 +167,30 @@ docker compose --env-file .env up -d --build
 
 </details>
 
+## ✦ 本地 Intel 混合 AI（可选）
+
+研协可以把一部分 AI 任务放到你自己电脑上的小模型里跑，其余交给云端。不配置时一切照常走云端。
+
+- **本地模型**：在 Intel Core Ultra 的 Arc 核显上用 [OpenVINO Model Server](https://github.com/openvinotoolkit/model_server)（OVMS）运行 **Qwen3-4B**（int4），在 Core Ultra 9 386H 上实测约 **25 tok/s**。也兼容 Ollama、LM Studio 等任意 OpenAI 兼容端点。
+- **分流**：润色、翻译、总结、上下文压缩、隐私脱敏和整篇 PDF 翻译走本地；复杂推理（Agent、续写、生成）走云端 DeepSeek。可用 `HYBRID_ROUTES` 按任务改成 `local` / `cloud` / `auto`。
+- **隐私护栏**：发往云端前，在本地把人名、数值、邮箱等换成占位符；结果回来后在本地还原。
+- **自动回退**：本地模型没开、超时、出错或输入太长时，自动改走云端，用户无感。
+- **混合看板**：侧边栏「混合 AI」页面显示本地/云端调用次数、本地速度和延迟、每次调用走了哪一侧。
+
+**最低配置**：带 Arc 核显的 Intel Core Ultra 处理器，16 GB 以上内存（推荐 32 GB），约 10 GB 磁盘空间。没有 Intel 设备或没装本地模型时，所有任务自动使用云端。
+
+```bash
+# 启动本地模型（OVMS，Intel 核显）
+ovms --rest_port 8000 --source_model OpenVINO/Qwen3-4B-int4-ov --model_name qwen3-4b --target_device GPU
+# .env
+LOCAL_LLM_BASE_URL=http://127.0.0.1:8000/v3
+LOCAL_LLM_MODEL=qwen3-4b
+```
+
+保版式 PDF 翻译是一个可选的独立服务，见 [tools/pdf-translate](tools/pdf-translate/README.md)。它使用 AGPL-3.0 的 [pdf2zh-next](https://github.com/PDFMathTranslate/PDFMathTranslate-next)，作为依赖单独安装、单独运行，不随本仓库分发。
+
+> 一键安装脚本（自动装好 OVMS、下载模型并写入配置）**即将提供**。
+
 ## ✦ 本地开发与试跑
 
 如果只是想在自己电脑上看看效果或参与开发，可以不用 Docker 和 Postgres（默认使用嵌入式 PGlite）。需要 Node ≥ 22.12 和 pnpm 11（`corepack enable`）。
@@ -190,18 +220,20 @@ pnpm dev                 # 后端 :8787，前端 :5173
 
 所有配置都在 `.env`，完整列表和说明见 [.env.example](.env.example)。最常用的几项：
 
-| 变量                                 | 说明                                                       |
-| ------------------------------------ | ---------------------------------------------------------- |
-| `DOMAIN`                             | 服务器部署的域名，设了就自动签发 HTTPS                     |
-| `PUBLIC_URL`                         | 对外访问地址，如 `https://lab.example.com`                 |
-| `LLM_API_KEY` / `LLM_BASE_URL`       | 默认模型服务（DeepSeek，或任意 OpenAI 兼容地址）           |
-| `OPENROUTER_API_KEY`                 | 可选，启用 OpenRouter 上的更多模型                         |
-| `ADMIN_EMAILS`                       | 管理员邮箱（逗号分隔）；第一个注册的用户不会自动成为管理员 |
-| `SESSION_SECRET`                     | 会话签名密钥，32 位以上随机串（初始化脚本会自动生成）      |
-| `KERNEL_MODE`                        | Notebook 内核：`none` / `gateway` / `docker`               |
-| `SMTP_*` / `MAIL_FROM`               | 找回密码邮件；不配则只把链接写进日志                       |
-| `API_TOKENS_ENABLED` / `MCP_ENABLED` | API 令牌与 MCP 接入（默认关）                              |
-| `BILLING_ENABLED`                    | 按量计费（默认关）                                         |
+| 变量                                     | 说明                                                                |
+| ---------------------------------------- | ------------------------------------------------------------------- |
+| `DOMAIN`                                 | 服务器部署的域名，设了就自动签发 HTTPS                              |
+| `PUBLIC_URL`                             | 对外访问地址，如 `https://lab.example.com`                          |
+| `LLM_API_KEY` / `LLM_BASE_URL`           | 默认模型服务（DeepSeek，或任意 OpenAI 兼容地址）                    |
+| `OPENROUTER_API_KEY`                     | 可选，启用 OpenRouter 上的更多模型                                  |
+| `ADMIN_EMAILS`                           | 管理员邮箱（逗号分隔）；第一个注册的用户不会自动成为管理员          |
+| `SESSION_SECRET`                         | 会话签名密钥，32 位以上随机串（初始化脚本会自动生成）               |
+| `KERNEL_MODE`                            | Notebook 内核：`none` / `gateway` / `docker`                        |
+| `SMTP_*` / `MAIL_FROM`                   | 找回密码邮件；不配则只把链接写进日志                                |
+| `API_TOKENS_ENABLED` / `MCP_ENABLED`     | API 令牌与 MCP 接入（默认关）                                       |
+| `BILLING_ENABLED`                        | 按量计费（默认关）                                                  |
+| `LOCAL_LLM_BASE_URL` / `LOCAL_LLM_MODEL` | 可选，本机模型（如 OVMS + Qwen3-4B）；都留空 = 全部走云端           |
+| `PDF_TRANSLATE_URL`                      | 可选，保版式 PDF 翻译服务地址（tools/pdf-translate）；留空 = 不启用 |
 
 ## ✦ 文档
 
@@ -228,7 +260,7 @@ pnpm dev                 # 后端 :8787，前端 :5173
 
 **Yanxie (研协, "research together")** is an open-source, self-hostable, multi-user AI agent platform built for research teams.
 
-Most AI assistants today are *one person, one chat box*. Yanxie takes a different approach: **every research project shares one coordinator agent**. Members post requests to the project desk. The coordinator breaks each request into **threads** and hands them to worker agents that run in parallel. Students, advisors and agents all work in the same context and on the same documents, spreadsheets, LaTeX papers, slides, papers and kanban boards. Every step an agent takes, from its reasoning to its tool calls and edits, is recorded. Advisors can follow along at any time and approve key milestones with a review / LGTM.
+Most AI assistants today are _one person, one chat box_. Yanxie takes a different approach: **every research project shares one coordinator agent**. Members post requests to the project desk. The coordinator breaks each request into **threads** and hands them to worker agents that run in parallel. Students, advisors and agents all work in the same context and on the same documents, spreadsheets, LaTeX papers, slides, papers and kanban boards. Every step an agent takes, from its reasoning to its tool calls and edits, is recorded. Advisors can follow along at any time and approve key milestones with a review / LGTM.
 
 You can run Yanxie on your own lab server, so messages, documents and research data stay in your own database.
 
@@ -237,19 +269,19 @@ You can run Yanxie on your own lab server, so messages, documents and research d
 
 ### Why Yanxie
 
-| | Typical AI assistant | Yanxie |
-| --- | --- | --- |
-| Unit of use | One person, one chat | One project, one team |
-| How work runs | One question, one answer, in sequence | Coordinator splits work into threads; agents run in parallel |
-| Context | Re-explained every time | Project plan, team knowledge base and personal memory accumulate |
-| Visibility | Only the final answer | Reasoning, tool calls and edits are fully traceable |
-| Quality gate | You judge it yourself | Advisor reviews and LGTMs key milestones |
-| Output | Copy-paste somewhere else | Written straight into shared docs, sheets, LaTeX and slides |
-| Data | Stored by the vendor | Self-hosted on your own server |
+|               | Typical AI assistant                  | Yanxie                                                           |
+| ------------- | ------------------------------------- | ---------------------------------------------------------------- |
+| Unit of use   | One person, one chat                  | One project, one team                                            |
+| How work runs | One question, one answer, in sequence | Coordinator splits work into threads; agents run in parallel     |
+| Context       | Re-explained every time               | Project plan, team knowledge base and personal memory accumulate |
+| Visibility    | Only the final answer                 | Reasoning, tool calls and edits are fully traceable              |
+| Quality gate  | You judge it yourself                 | Advisor reviews and LGTMs key milestones                         |
+| Output        | Copy-paste somewhere else             | Written straight into shared docs, sheets, LaTeX and slides      |
+| Data          | Stored by the vendor                  | Self-hosted on your own server                                   |
 
 ### Features
 
-- **Coordinator and parallel threads.** One coordinator per project understands requests, splits them into tasks, dispatches worker agents and summarizes progress on the project desk. Agents *claim* a resource before editing it, so conflicts are flagged before they happen.
+- **Coordinator and parallel threads.** One coordinator per project understands requests, splits them into tasks, dispatches worker agents and summarizes progress on the project desk. Agents _claim_ a resource before editing it, so conflicts are flagged before they happen.
 - **My workspace.** Each member has private sessions and a personal space. When an idea is ready, hand it to the coordinator in one click, or share it with a teammate by link.
 - **Review and LGTM.** Advisors inspect the coordinator's reasoning, the research space and every agent change, then approve at key checkpoints. Nothing important ships without a human in the loop.
 - **Official plan and team knowledge base.** The project plan is versioned with diffs, and changes go through proposals and approval. Team knowledge and personal memory make agents understand the project better over time.
@@ -257,6 +289,8 @@ You can run Yanxie on your own lab server, so messages, documents and research d
 - **Paper library.** Import PDFs, parse layout and references with GROBID, annotate, take notes and ask questions grounded in the paper.
 - **Research space and notebooks.** Run Python notebooks in isolated containers with resource limits and an allow-listed package proxy, so the process and evidence stay in the project.
 - **Group-meeting reports, kanban and web search.** Draft meeting reports from the project's context; track work on kanban boards and to-do lists; search the web through a self-hosted SearXNG plus Crossref, OpenAlex and arXiv.
+- **Hybrid AI (local Intel + cloud).** Light tasks such as polishing, translation and summarization run on a small model on your Intel iGPU, while complex reasoning goes to the cloud. Content is redacted before it leaves the machine, and calls fall back to the cloud automatically when the local model is unavailable.
+- **Layout-preserving PDF translation.** Translate a whole paper into Chinese while keeping the original layout, formulas and figures, as a translation-only PDF and a bilingual side-by-side PDF.
 - **Also included:** multiple models (DeepSeek by default; OpenRouter or any OpenAI-compatible endpoint, including self-hosted vLLM) · Chinese and English UI · mobile layout with light and dark themes · API tokens and MCP so external agents can read and write the project (off by default) · group-chat bot notifications (off by default) · usage-based billing (off by default).
 
 ### Deploy on your own server
@@ -288,6 +322,30 @@ Open `https://lab.example.com` and sign up. Caddy obtains and renews the HTTPS c
 
 Backups and restore, GROBID memory tuning, API tokens, MCP and notifications are covered in [deploy/README.md](deploy/README.md) (Chinese).
 
+### Hybrid local Intel AI (optional)
+
+Yanxie can run part of its AI work on a small model on your own machine and send the rest to the cloud. Without any configuration everything keeps going to the cloud.
+
+- **Local model:** [OpenVINO Model Server](https://github.com/openvinotoolkit/model_server) (OVMS) runs **Qwen3-4B** (int4) on the Arc iGPU of an Intel Core Ultra; we measured about **25 tok/s** on a Core Ultra 9 386H. Any OpenAI-compatible endpoint such as Ollama or LM Studio also works.
+- **Routing:** polishing, translation, summarization, context compaction, privacy redaction and whole-PDF translation run locally; complex reasoning (agents, continuation, generation) goes to cloud DeepSeek. Override per task with `HYBRID_ROUTES` (`local` / `cloud` / `auto`).
+- **Privacy guard:** before anything is sent to the cloud, names, numbers, emails and similar entities are replaced with placeholders locally, and restored locally when the result comes back.
+- **Automatic cloud fallback:** if the local model is off, times out, fails or the input is too long, the call transparently goes to the cloud.
+- **Hybrid dashboard:** the "Hybrid AI" page in the sidebar shows local/cloud call counts, local speed and latency, and which side served each call.
+
+**Minimum hardware:** an Intel Core Ultra processor with Arc iGPU, 16 GB RAM or more (32 GB recommended), about 10 GB of disk. Without an Intel device or a local model, every task automatically uses the cloud.
+
+```bash
+# Start the local model (OVMS on the Intel iGPU)
+ovms --rest_port 8000 --source_model OpenVINO/Qwen3-4B-int4-ov --model_name qwen3-4b --target_device GPU
+# .env
+LOCAL_LLM_BASE_URL=http://127.0.0.1:8000/v3
+LOCAL_LLM_MODEL=qwen3-4b
+```
+
+Layout-preserving PDF translation is an optional, separate service; see [tools/pdf-translate](tools/pdf-translate/README.md). It uses the AGPL-3.0 [pdf2zh-next](https://github.com/PDFMathTranslate/PDFMathTranslate-next), installed as a dependency and run as its own process; it is not distributed with this repository.
+
+> A one-click install script (sets up OVMS, downloads the model and writes the config) is **coming soon**.
+
 ### Local development
 
 To try it on your own computer or contribute, you don't need Docker or Postgres (an embedded PGlite database is used). Requires Node ≥ 22.12 and pnpm 11 (`corepack enable`).
@@ -304,32 +362,34 @@ Then open `http://localhost:5173`. That address only works on your own machine a
 
 A pnpm monorepo in strict TypeScript:
 
-| Path | What it is |
-| --- | --- |
-| `apps/server` | Fastify backend: REST, WebSocket, Yjs collaboration, agent runtime, database migrations |
-| `apps/web` | React + Vite frontend |
-| `apps/landing` | Product landing page |
-| `packages/shared` | Types, zod schemas and i18n helpers shared by server and web |
-| `deploy/` | Self-hosting scripts, notebook kernel image, SearXNG / GROBID config |
+| Path              | What it is                                                                              |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| `apps/server`     | Fastify backend: REST, WebSocket, Yjs collaboration, agent runtime, database migrations |
+| `apps/web`        | React + Vite frontend                                                                   |
+| `apps/landing`    | Product landing page                                                                    |
+| `packages/shared` | Types, zod schemas and i18n helpers shared by server and web                            |
+| `deploy/`         | Self-hosting scripts, notebook kernel image, SearXNG / GROBID config                    |
 
-The agent runtime is event-driven: each coordinator or thread *turn* is triggered by an event (a message, a review, a finished thread), runs tool calls against the project's documents and services, and writes everything to an execution log. Context is budgeted and compacted, and memory is layered into the official plan, the team knowledge base and personal memory. See the diagram above and [ARCHITECTURE.md](ARCHITECTURE.md) for details.
+The agent runtime is event-driven: each coordinator or thread _turn_ is triggered by an event (a message, a review, a finished thread), runs tool calls against the project's documents and services, and writes everything to an execution log. Context is budgeted and compacted, and memory is layered into the official plan, the team knowledge base and personal memory. See the diagram above and [ARCHITECTURE.md](ARCHITECTURE.md) for details.
 
 ### Configuration
 
 Everything lives in `.env`; see [.env.example](.env.example) for the full list.
 
-| Variable | Meaning |
-| --- | --- |
-| `DOMAIN` | Domain for server deploys; when set, HTTPS is issued automatically |
-| `PUBLIC_URL` | Public URL, e.g. `https://lab.example.com` |
-| `LLM_API_KEY` / `LLM_BASE_URL` | Default model provider (DeepSeek or any OpenAI-compatible endpoint) |
-| `OPENROUTER_API_KEY` | Optional; enables more models via OpenRouter |
-| `ADMIN_EMAILS` | Admin emails (comma-separated); the first user is *not* made admin automatically |
-| `SESSION_SECRET` | Session signing secret, 32+ random characters (generated by the bootstrap script) |
-| `KERNEL_MODE` | Notebook kernel: `none` / `gateway` / `docker` |
-| `SMTP_*` / `MAIL_FROM` | Password-reset email; without it the link is only written to the log |
-| `API_TOKENS_ENABLED` / `MCP_ENABLED` | API tokens and MCP access (off by default) |
-| `BILLING_ENABLED` | Usage-based billing (off by default) |
+| Variable                                 | Meaning                                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `DOMAIN`                                 | Domain for server deploys; when set, HTTPS is issued automatically                         |
+| `PUBLIC_URL`                             | Public URL, e.g. `https://lab.example.com`                                                 |
+| `LLM_API_KEY` / `LLM_BASE_URL`           | Default model provider (DeepSeek or any OpenAI-compatible endpoint)                        |
+| `OPENROUTER_API_KEY`                     | Optional; enables more models via OpenRouter                                               |
+| `ADMIN_EMAILS`                           | Admin emails (comma-separated); the first user is _not_ made admin automatically           |
+| `SESSION_SECRET`                         | Session signing secret, 32+ random characters (generated by the bootstrap script)          |
+| `KERNEL_MODE`                            | Notebook kernel: `none` / `gateway` / `docker`                                             |
+| `SMTP_*` / `MAIL_FROM`                   | Password-reset email; without it the link is only written to the log                       |
+| `API_TOKENS_ENABLED` / `MCP_ENABLED`     | API tokens and MCP access (off by default)                                                 |
+| `BILLING_ENABLED`                        | Usage-based billing (off by default)                                                       |
+| `LOCAL_LLM_BASE_URL` / `LOCAL_LLM_MODEL` | Optional local model (e.g. OVMS + Qwen3-4B); leave both empty to use the cloud only        |
+| `PDF_TRANSLATE_URL`                      | Optional layout-preserving PDF translation service (tools/pdf-translate); empty = disabled |
 
 ### Docs and contributing
 

@@ -1537,5 +1537,19 @@
   "；无数据行": "; no data rows",
   "；横轴名 {xLabel}": "; x-axis label {xLabel}",
   "；纵轴名 {yLabel}": "; y-axis label {yLabel}",
-  "；首行：{row}": "; first row: {row}"
+  "；首行：{row}": "; first row: {row}",
+  "为团队充值要指定项目": "Choose a project to top up team credits",
+  "这个人不是项目成员": "This person is not a project member",
+  "转入数量要是正整数": "The amount must be a positive whole number",
+  "个人积分不够转入这么多": "Not enough personal credits to move that many",
+  "PDF 翻译服务没有配置": "The PDF translation service is not configured",
+  "还没有可下载的译文": "There is no translation to download yet",
+  "kind 只能是 mono 或 dual": "kind must be mono or dual",
+  "本地模型和云端模型都不可用，无法翻译 PDF": "Neither the local nor the cloud model is available, so the PDF cannot be translated",
+  "PDF 翻译服务连不上：{error}": "Cannot reach the PDF translation service: {error}",
+  "PDF 翻译服务丢失了这个任务": "The PDF translation service lost this job",
+  "PDF 翻译服务出错：{error}": "The PDF translation service failed: {error}",
+  "PDF 翻译超时": "PDF translation timed out",
+  "翻译失败：{error}": "Translation failed: {error}",
+  "翻译失败：没有生成 PDF": "Translation failed: no PDF was produced"
 }

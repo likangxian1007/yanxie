@@ -25,6 +25,7 @@ import {
   ConversationAttachmentList,
 } from '@/components/chat/ConversationAttachments';
 import { useConversationAttachments } from '@/components/chat/conversation-attachments';
+import { ComposerCredits } from '@/features/billing/components/ComposerCredits';
 import { api } from '@/lib/api';
 import { useHarness, useRunCommand } from '@/lib/harness';
 import { qk } from '@/lib/query-keys';
@@ -621,6 +622,13 @@ export const HarnessComposer = forwardRef<HTMLTextAreaElement, HarnessComposerPr
             controls || toolbar || hasAttachmentControls ? (
               <>
                 {controls}
+                {controls && (
+                  <ComposerCredits
+                    projectId={projectId}
+                    personal={personal}
+                    modelId={view.model?.id ?? null}
+                  />
+                )}
                 {hasAttachmentControls && (
                   <ConversationAttachmentButton
                     attachments={attachments}

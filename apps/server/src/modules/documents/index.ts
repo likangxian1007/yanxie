@@ -24,6 +24,38 @@ import { setCollabStorage } from '../../realtime/collab';
 import { ensureWorkbook } from './sheet-model';
 import { memberRole, requireProject, type Params } from '../collab-common';
 import { streamText } from '../collab-common/llm';
+import type { DocumentAiAction, HybridTask } from '@srh/shared';
+
+type AiRouteInfo = { target: 'local' | 'cloud'; fallback: boolean; redacted: number };
+
+/** 文档内嵌 AI 动作 → 混合 AI 任务类型（决定本地还是云端） */
+function docAiTask(action: DocumentAiAction): HybridTask {
+  switch (action) {
+    case 'polish':
+    case 'shorten':
+    case 'expand':
+    case 'academic':
+      return 'doc-rewrite';
+    case 'translate_en':
+    case 'translate_zh':
+      return 'doc-translate';
+    case 'summarize':
+    case 'outline':
+      return 'doc-summary';
+    default:
+      return 'doc-generate';
+  }
+}
+
+/** 告诉前端这次走的是本地还是云端（界面上的「本地 / 云端」标记） */
+function routeHeaders(info: AiRouteInfo | null): Record<string, string> {
+  if (!info) return {};
+  return {
+    'x-srh-ai-route': info.target,
+    'x-srh-ai-fallback': info.fallback ? '1' : '0',
+    'x-srh-ai-redacted': String(info.redacted),
+  };
+}
 import { accessOf, TEAM_VIEWER, type Viewer } from '../sharing/access';
 import { loadResource, requireResource, type ResourceAccess } from '../sharing/service';
 import type { ModuleDef } from '../types';
@@ -297,8 +329,14 @@ export const documentsModule: ModuleDef = {
       const content = await readDocument(ctx, projectId, docId);
       const ac = new AbortController();
       reply.raw.on('close', () => ac.abort());
+      let aiRoute: AiRouteInfo | null = null;
       const iter = streamText(ctx, {
         billing: { payerUserId: access.user.id, projectId, note: 'docs-ai' },
+        task: docAiTask(input.action),
+        privacy: input.privacy,
+        onRoute: (info) => {
+          aiRoute = info;
+        },
         system: aiSystemPrompt(row.kind, input.action),
         user:
           input.action === 'latex_fix' && row.kind === 'latex'
@@ -326,6 +364,7 @@ export const documentsModule: ModuleDef = {
         'content-type': 'text/plain; charset=utf-8',
         'cache-control': 'no-cache, no-transform',
         'x-accel-buffering': 'no',
+        ...routeHeaders(aiRoute),
       });
       let head = first.done ? '' : first.value;
       let headDone = false;

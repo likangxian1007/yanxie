@@ -13,6 +13,7 @@ import { REVIEWED_ROUTES } from './catalog-routes';
 import { LIBRARY_INTERACTIVE_ROUTES } from './catalog-library-interactive';
 import { FEEDBACK_INTERACTIVE_ROUTES } from './catalog-feedback-interactive';
 import { BILLING_INTERACTIVE_ROUTES } from './catalog-billing-interactive';
+import { HYBRID_INTERACTIVE_ROUTES } from './catalog-hybrid-interactive';
 import { NO_CONTENT_ROUTES } from './catalog-no-content';
 import { NO_QUERY_ROUTES } from './catalog-no-query';
 
@@ -42,6 +43,7 @@ const registeredRoutes = new Set<string>([
   ...LIBRARY_INTERACTIVE_ROUTES,
   ...FEEDBACK_INTERACTIVE_ROUTES,
   ...BILLING_INTERACTIVE_ROUTES,
+  ...HYBRID_INTERACTIVE_ROUTES,
 ]);
 const prefix = '/api/v1';
 const safeMethod = (method: string) => method === 'GET' || method === 'HEAD';
@@ -51,6 +53,7 @@ function interactive(method: string, path: string): boolean {
   if (LIBRARY_INTERACTIVE_ROUTES.has(`${method} ${path}`)) return true;
   if (FEEDBACK_INTERACTIVE_ROUTES.has(`${method} ${path}`)) return true;
   if (BILLING_INTERACTIVE_ROUTES.has(`${method} ${path}`)) return true;
+  if (HYBRID_INTERACTIVE_ROUTES.has(`${method} ${path}`)) return true;
   if (path === '/mcp') return true;
   if (/^\/auth(?:\/|$)/u.test(path) && !/^\/auth\/me(?:\/pins(?:\/|$)|$)/u.test(path)) return true;
   if (/^\/auth\/me\/tokens(?:\/|$)/u.test(path)) return true;

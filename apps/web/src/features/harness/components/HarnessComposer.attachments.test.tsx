@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import type { AgentSession, HarnessSummary, SlashCommand } from '@srh/shared';
 import type { ComposerSubmit } from '@/components/chat/Composer';
 import { useToastStore } from '@/components/ui/toast-store';
+import { billingKeys } from '@/features/billing/api';
 import { harnessKeys } from '@/lib/harness';
 import { qk } from '@/lib/query-keys';
 import { HarnessComposer } from './HarnessComposer';
@@ -65,6 +66,12 @@ function fileResponse(id: string) {
 function setup(userId: string, onSubmit: (message: ComposerSubmit) => void, onStop?: () => void) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   client.setQueryData(harnessKeys.summary('attachment-project'), summary);
+  // 积分提示的请求不要占用下面打桩的 fetch
+  client.setQueryData(billingKeys.me, { enabled: false, exempt: false, balance: 0 });
+  client.setQueryData(billingKeys.project('attachment-project'), {
+    enabled: false,
+    exempt: false,
+  });
   client.setQueryData(qk.me, {
     user: {
       id: userId,

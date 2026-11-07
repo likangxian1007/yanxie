@@ -5,4 +5,8 @@ export const BILLING_INTERACTIVE_ROUTES = new Set([
   'POST /admin/credits',
   'POST /billing/kyren-webhook',
   'POST /billing/topup',
+  'GET /billing/projects/:id',
+  'GET /billing/projects/:id/turns',
+  'POST /billing/projects/:id/transfer',
+  'PUT /billing/projects/:id/members/:userId/cap',
 ]);

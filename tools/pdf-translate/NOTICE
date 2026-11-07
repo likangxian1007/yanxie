@@ -1,0 +1,27 @@
+研协（Yanxie）— tools/pdf-translate
+
+本目录是一个可选的独立服务，它使用 pdf2zh-next：
+  PDFMathTranslate-next — https://github.com/PDFMathTranslate/PDFMathTranslate-next
+  许可证：GNU Affero General Public License v3.0（AGPL-3.0）
+
+- 本仓库不包含、不内置（vendor）、也不分发 pdf2zh-next 或其依赖（如 BabelDOC）的源代码或二进制。
+  它们由使用者通过 requirements.txt 从 PyPI 自行安装。
+- 该服务作为独立进程运行；研协服务端（Apache-2.0）只通过 HTTP 调用它，不链接其代码。
+- 若你运行该服务并向网络上的其他用户提供，pdf2zh-next 及与其一起运行的本服务须遵守 AGPL-3.0，
+  包括向这些用户提供对应源代码的义务。
+
+---
+
+Yanxie — tools/pdf-translate
+
+This directory is an optional, independent service that uses pdf2zh-next:
+  PDFMathTranslate-next — https://github.com/PDFMathTranslate/PDFMathTranslate-next
+  License: GNU Affero General Public License v3.0 (AGPL-3.0)
+
+- This repository does not contain, vendor, or distribute the source code or binaries of
+  pdf2zh-next or its dependencies (e.g. BabelDOC). Users install them from PyPI via requirements.txt.
+- The service runs as a separate process; the Yanxie server (Apache-2.0) only talks to it over
+  HTTP and does not link against its code.
+- If you run this service and make it available to other users over a network, pdf2zh-next and
+  this service running together with it are subject to AGPL-3.0, including the obligation to offer
+  the corresponding source code to those users.

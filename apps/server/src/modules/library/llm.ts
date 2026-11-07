@@ -96,10 +96,14 @@ export async function completeLibraryText(
 
 /** 付款人：调用方明确给的；否则个人库归本人，项目库归项目创建者 */
 function billingFor(scope: LibraryScopeInput, input: LibraryTextInput): BillingContext {
-  if (input.billing) return input.billing;
   const s = libraryScope(scope);
+  // 个人库永远只扣个人积分（即使调用方带了 projectId）
+  if (input.billing)
+    return s.kind === 'personal'
+      ? { ...input.billing, scope: 'personal' }
+      : { projectId: s.projectId, ...input.billing };
   return s.kind === 'personal'
-    ? { payerUserId: s.ownerUserId, note: 'library' }
+    ? { payerUserId: s.ownerUserId, note: 'library', scope: 'personal' }
     : { projectId: s.projectId, note: 'library' };
 }
 

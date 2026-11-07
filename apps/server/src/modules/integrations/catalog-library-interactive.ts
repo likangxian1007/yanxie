@@ -63,4 +63,11 @@ export const LIBRARY_INTERACTIVE_ROUTES = new Set([
   'POST /projects/:projectId/library/papers/:paperId/qa/turns/:turnId/flush',
   'POST /projects/:projectId/library/papers/:paperId/qa/turns/:turnId/stop',
   'POST /projects/:projectId/library/papers/:paperId/translate',
+  // 整篇 PDF 保版式翻译（modules/pdf-translate）：会调用本机 / 云端模型，只给网页会话
+  'GET /library/papers/:paperId/pdf-translate',
+  'GET /library/papers/:paperId/pdf-translate/file',
+  'POST /library/papers/:paperId/pdf-translate',
+  'GET /projects/:projectId/library/papers/:paperId/pdf-translate',
+  'GET /projects/:projectId/library/papers/:paperId/pdf-translate/file',
+  'POST /projects/:projectId/library/papers/:paperId/pdf-translate',
 ]);

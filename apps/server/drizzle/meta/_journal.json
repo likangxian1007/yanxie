@@ -183,6 +183,13 @@
       "when": 1793937788792,
       "tag": "0025_password_resets",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793946458588,
+      "tag": "0026_team_credits",
+      "breakpoints": true
     }
   ]
 }

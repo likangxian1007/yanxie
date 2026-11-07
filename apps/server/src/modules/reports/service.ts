@@ -123,6 +123,8 @@ export async function generateReport(
       user,
       reasoning: true,
       maxTokens: 16_000,
+      // 混合 AI：组会汇报默认走云端，配置了本地模型时先在本地脱敏
+      task: 'report',
       // 付款人：发起生成的用户；agent / 例行任务发起时由项目创建者付
       billing: {
         payerUserId: row.createdBy.kind === 'user' ? row.createdBy.id : null,

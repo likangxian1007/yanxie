@@ -163,9 +163,9 @@ describe('billing disabled (default)', () => {
   it('不拦截、不扣费，只记用量；注册赠送一次', async () => {
     const ctx = t.app.ctx;
     const billing = { payerUserId: s.user.id };
-    expect(await getBalance(ctx, s.user.id)).toBe(500);
-    expect(await getBalance(ctx, s.user.id)).toBe(500);
-    await applyLedger(ctx, { userId: s.user.id, delta: -600, kind: 'adjust', ref: 'adj:neg' });
+    expect(await getBalance(ctx, s.user.id)).toBe(2800);
+    expect(await getBalance(ctx, s.user.id)).toBe(2800);
+    await applyLedger(ctx, { userId: s.user.id, delta: -2900, kind: 'adjust', ref: 'adj:neg' });
     await expect(assertCanSpend(ctx, ENV, billing)).resolves.toBeUndefined();
     const charged = await chargeUsage(ctx, billing, {
       provider: ENV,
@@ -188,8 +188,8 @@ describe('billing disabled (default)', () => {
       { payerUserId: other.user.id },
       { provider: ENV, model: 'qwen/qwen3.7-plus', inputTokens: 10, outputTokens: 10 },
     );
-    expect(await getBalance(ctx, other.user.id)).toBe(500);
-    expect(await getBalance(ctx, other.user.id)).toBe(500);
+    expect(await getBalance(ctx, other.user.id)).toBe(2800);
+    expect(await getBalance(ctx, other.user.id)).toBe(2800);
     const rows = await usageRows(t, other.user.id);
     expect(rows.filter((r) => r.kind === 'signup')).toHaveLength(1);
   });
