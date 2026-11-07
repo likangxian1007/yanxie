@@ -179,6 +179,75 @@ describe('隐私护栏', () => {
     expect(out).toBe('准确率为93.7%，较基线');
   });
 
+  describe('人名脱敏稳定（模型漏检时规则兜底）', () => {
+    const cases: [string, string[]][] = [
+      ['张伟在样本 S-2031 上测得准确率 93.7%。', ['张伟']],
+      ['张伟和李娜在样本 S-2031 上测得准确率 93.7%。', ['张伟', '李娜']],
+      ['王老师让张伟重跑实验。', ['王老师', '张伟']],
+      ['作者：王小明，联系人欧阳娜娜。', ['王小明', '欧阳娜娜']],
+      ['实验由李教授指导，张同学负责记录。', ['李教授', '张同学']],
+    ];
+    for (const [text, names] of cases) {
+      for (const [mode, json] of [
+        ['模型什么也没返回', '[]'],
+        ['模型只返回编号', '[{"kind":"term","text":"S-2031"}]'],
+        ['模型返回了人名', JSON.stringify(names.map((n) => ({ kind: 'person', text: n })))],
+      ] as const) {
+        it(`${mode}：${text}`, async () => {
+          entityJson = json;
+          const r = await redact(cfg(), [text]);
+          const out = r.texts[0]!;
+          for (const n of names) expect(out).not.toContain(n);
+          expect(out).toContain('〔人名1〕');
+          expect(restore(out, r.items)).toBe(text);
+        });
+      }
+    }
+
+    it('本地模型关掉时规则仍然遮人名', async () => {
+      const text = '张伟和李娜在样本 S-2031 上测得准确率 93.7%。';
+      const r = await redact(cfg({ LOCAL_LLM_BASE_URL: '' }), [text], { useLocalModel: false });
+      expect(r.texts[0]).toBe('〔人名1〕和〔人名2〕在样本 〔编号1〕 上测得准确率 〔数值1〕。');
+      expect(r.usedLocalModel).toBe(false);
+      expect(restore(r.texts[0]!, r.items)).toBe(text);
+    });
+
+    it('一处认出的人名，所有文本里的每一处都遮掉', async () => {
+      entityJson = '[{"kind":"person","text":"赵敏"}]';
+      const texts = ['赵敏的数据见附表', '请核对赵敏提交的结果，赵敏说已复核'];
+      const r = await redact(cfg(), texts);
+      expect(r.texts).toEqual([
+        '〔人名1〕的数据见附表',
+        '请核对〔人名1〕提交的结果，〔人名1〕说已复核',
+      ]);
+      expect(r.texts.map((t) => restore(t, r.items))).toEqual(texts);
+    });
+
+    it('模型把学科词当人名时丢掉，但三字真名照样遮', async () => {
+      entityJson =
+        '[{"kind":"person","text":"张量分解"},{"kind":"person","text":"高斯分布"},{"kind":"person","text":"王国维"}]';
+      const text = '王国维用张量分解和高斯分布改进了方法。';
+      const r = await redact(cfg(), [text]);
+      expect(r.texts[0]).toBe('〔人名1〕用张量分解和高斯分布改进了方法。');
+      expect(restore(r.texts[0]!, r.items)).toBe(text);
+    });
+
+    it('普通学科词不被当成人名', async () => {
+      entityJson = '[]';
+      for (const text of [
+        '我们用张量分解和高斯分布改进了方法。',
+        '方法在小样本上有效，程序和数据已开源。',
+        '高斯过程的方差和温度在 300 K 下测得。',
+        '张量的秩、王国的历史、李子的产量与和平无关。',
+        '鲁棒性和欧拉方法、霍尔效应的程序都已复现。',
+      ]) {
+        const r = await redact(cfg(), [text]);
+        expect(r.items.filter((i) => i.kind === 'person')).toEqual([]);
+        expect(r.texts[0]).toBe(text);
+      }
+    });
+  });
+
   it('stripThink 去掉 think 段', () => {
     expect(stripThink('<think>想一想</think>\n答案')).toBe('答案');
   });

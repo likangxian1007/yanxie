@@ -367,6 +367,68 @@ function placeholderFor(kind: string, n: number) {
   return `〔${LABELS[kind] ?? '敏感'}${n}〕`;
 }
 
+// ---- 中文人名规则兜底：不让人名脱敏只靠 4B 小模型 ----
+// 很少当普通词词头的常见姓：后面跟“在、和、提出、测得…”这类上下文就认作人名
+const CLEAN_SURNAMES =
+  '张王李刘陈杨赵吴孙徐朱胡郭罗梁宋郑谢韩唐冯董萧曹袁邓彭吕苏卢蒋蔡贾魏薛阎闫潘杜戴钟汪姜姚谭廖邹熊郝崔邱侯邵孟汤尹黎乔贺赖龚覃洪沈葛鲁韦俞陶殷庞樊兰翟倪柴聂祝庄詹欧邢骆岳裴鲍霍蒲';
+// 也常是普通词词头的姓（高斯、方法、程序、温度、范围…）：只在称谓或“作者：”这类强上下文里认
+const AMBIGUOUS_SURNAMES =
+  '高方程温常范文任安金石白黄马周于许何施夏叶余田江林万段易武龙孔史向时原应全成包毛牛苗宁甘车云秦钱傅严曾丁';
+const COMPOUND_SURNAMES =
+  '欧阳|司马|诸葛|上官|东方|皇甫|尉迟|公孙|慕容|长孙|宇文|司徒|夏侯|令狐|端木|轩辕|南宫|西门|独孤|呼延|万俟|闻人|澹台|申屠';
+/** 名字用字：汉字，但不含虚词，避免“张在”“李的”这种切法 */
+const GIVEN = '(?:(?![的了是在和与及跟同让说对把将被也都还就又再才等们这那个])\\p{Script=Han})';
+const TITLES = '老师|教授|同学|博士|研究员|主任|院士|师兄|师姐|师弟|师妹|医生|先生|女士|博导|导师';
+/** 人名后面常跟的词（动词、介词、虚词、称谓、标点） */
+const NAME_NEXT =
+  `(?:${TITLES}|等人|负责|提出|提供|测得|测量|发现|完成|指出|认为|表示|建议|重跑|重做|重新|编写|整理|设计|分析|参与|报告|告诉|发来|发送|采集|处理|撰写|修改|审核|记录|` +
+  '[在和与跟同及让叫请说讲问的对把将被给向已也都还又再就才是测做跑写等]|[，,、。；;：:！!？?）)\\s〔]|$)';
+/** 人名前面允许的字：句首、非汉字、连词介词 */
+const NAME_PREV = '(?<=^|[^\\p{Script=Han}]|[和与跟同及让叫请由被给向对把将问找据谢是])';
+/** 强上下文：后面紧跟的就是人名 */
+const NAME_PREFIX =
+  '(?<=(?:联系人|通讯作者|第一作者|作者|同学|老师|导师|学生|负责人|研究员|教授|博士|组长|成员|实验员|记录人|操作人|审核人|申请人|主持人|执笔人|姓名)[:：\\s]?)';
+const ANY_SURNAME = `(?:${COMPOUND_SURNAMES}|[${CLEAN_SURNAMES}${AMBIGUOUS_SURNAMES}])`;
+const NAME_RULES: RegExp[] = [
+  // 张伟在… / 和李娜在… / 让张伟重跑…（名字取最短，免得把“说”“测”吞进名字）
+  new RegExp(
+    `${NAME_PREV}(?:${COMPOUND_SURNAMES}|[${CLEAN_SURNAMES}])${GIVEN}{1,2}?(?=${NAME_NEXT})`,
+    'gu',
+  ),
+  // 王老师、李教授、欧阳同学：姓 + 称谓，整个当人名
+  new RegExp(`${NAME_PREV}${ANY_SURNAME}(?:${TITLES})`, 'gu'),
+  // 作者：王小明 / 联系人张伟
+  new RegExp(`${NAME_PREFIX}${ANY_SURNAME}${GIVEN}{1,2}(?=${NAME_NEXT}|[^\\p{Script=Han}])`, 'gu'),
+];
+/** 姓开头的普通词：规则命中这些（或以它们开头）不算人名 */
+const NAME_STOPLIST = new Set(
+  (
+    '张量 张力 张开 张贴 张拉 张角 王国 王朝 王者 李子 刘海 陈述 陈列 陈旧 杨树 杨氏 杨柳 孙子 徐徐 朱红 胡乱 胡同 ' +
+    '罗列 罗盘 宋体 宋代 郑重 谢谢 谢绝 唐朝 唐代 董事 苏醒 苏联 杜绝 钟表 钟头 汪洋 汤匙 黎明 乔木 贺信 鲁棒 庞大 ' +
+    '洪水 熊猫 殷切 祝贺 庄稼 庄重 陶瓷 柴油 欧洲 欧氏 欧式 欧拉 欧姆 霍尔 霍夫 姜黄 戴着 曹操 潘多 葛根 兰花 ' +
+    '高斯 方法 方向 方面 方案 方程 程序 程度 温度 常数 范围 文献 任务 安全 金属 石头 白色 黄色 马上 周期 于是 ' +
+    '许多 何种 施加 夏天 叶片 余下 田间 江河 林业 万一 段落 易于 武器 龙头 孔径 史料 向量 时间 原理 应用 全部 ' +
+    '成本 包括 毛细 牛顿 苗木 宁可 甘油 车辆 云端 秦朝 钱财 严格 严重 曾经 丁烷 丁酸 高度 高温 高压 高效'
+  ).split(' '),
+);
+
+function isStopName(name: string): boolean {
+  return NAME_STOPLIST.has(name) || NAME_STOPLIST.has(name.slice(0, 2));
+}
+
+/** 规则找出的中文人名（去重）。宁可多遮一点，也不能漏掉人名 */
+export function ruleNames(text: string): string[] {
+  const found = new Set<string>();
+  for (const re of NAME_RULES) {
+    re.lastIndex = 0;
+    for (const m of text.matchAll(re)) {
+      const name = m[0];
+      if (name.length >= 2 && !isStopName(name)) found.add(name);
+    }
+  }
+  return [...found];
+}
+
 /**
  * 让本地模型找出规则抓不到的敏感实体（人名、机构、未公开的项目代号）。
  * 失败或本地不可用就只用规则，绝不因此阻塞调用。
@@ -390,8 +452,13 @@ async function localEntities(
           {
             role: 'system',
             content:
-              '你是隐私审查器。从用户给的科研文本里找出需要保密的实体：具体人名（person）、具体单位或机构名（org）、未公开的项目或样品代号（term）。' +
-              '只输出 JSON 数组，例如 [{"kind":"person","text":"张三"}]；文本里逐字出现的才算；通用学科词、公开的方法名、知名模型名都不算；没有就输出 []。' +
+              // 旧提示词把三类实体写在一句里、只给一个人名例子，qwen3-4b 遇到带样本编号的句子
+              // 会只输出编号（[{"kind":"term","text":"S-2031"}]），句首和并列的人名整个漏掉。
+              // 人名单独成条、点明句首/并列/带称谓几种形式后，同样的句子能稳定找全。
+              '你是隐私审查器。逐字检查用户给的科研文本，找出所有需要保密的实体：' +
+              '1) 人名（person）：每一个具体的人名都要列出，包括句首的人名、并列的多个人名、带称谓的（如“王老师”）；' +
+              '2) 具体单位或机构名（org）；3) 未公开的项目或样品代号（term）。' +
+              '只输出 JSON 数组，例如 [{"kind":"person","text":"刘洋"},{"kind":"org","text":"某某大学"}]；text 必须是文本里逐字出现的片段；通用学科词、公开的方法名、知名模型名都不算；没有就输出 []。' +
               localSystemSuffix(),
           },
           { role: 'user', content: text },
@@ -464,9 +531,25 @@ export async function redact(
       return !!m && m.join('').length >= text.length * 0.6;
     });
   // 规则能认出的（邮箱、数值、编号）交给规则，标签更准；模型只补人名、机构、术语
-  const entities = (
-    useLocal ? await localEntities(config, texts.join('\n\n'), opts.signal) : []
-  ).filter((e) => e.kind === 'person' || e.kind === 'org' || !ruleHit(e.text));
+  const entities = (useLocal ? await localEntities(config, texts.join('\n\n'), opts.signal) : [])
+    .filter((e) => e.kind === 'person' || e.kind === 'org' || !ruleHit(e.text))
+    // 小模型偶尔把“张量分解”“高斯分布”当人名；姓开头的普通词一律不算人名
+    // （只丢整词命中或 ≥4 字以普通词开头的，“王国维”“方向东”这类三字真名照样遮）
+    .filter(
+      (e) =>
+        e.kind !== 'person' ||
+        !(NAME_STOPLIST.has(e.text) || (e.text.length >= 4 && isStopName(e.text))),
+    );
+  // 人名规则兜底：不管模型有没有找到、本地模型开没开都跑。
+  // 规则和模型找到的人名合在一起，在所有文本里的每一处出现都遮掉
+  const modelFound = entities.length > 0;
+  const known = new Set(entities.map((e) => e.text));
+  for (const name of ruleNames(texts.join('\n\n'))) {
+    if (!known.has(name)) {
+      known.add(name);
+      entities.push({ kind: 'person', text: name });
+    }
+  }
   // 实体按长度降序替换，避免短名字先替掉长名字的一部分
   entities.sort((a, b) => b.text.length - a.text.length);
   const out = texts.map((t) => {
@@ -501,7 +584,7 @@ export async function redact(
   return {
     texts: out,
     items,
-    usedLocalModel: entities.length > 0 || (useLocal && hybridEnabled(config)),
+    usedLocalModel: modelFound || (useLocal && hybridEnabled(config)),
   };
 }
 
